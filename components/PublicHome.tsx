@@ -1,11 +1,12 @@
 
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, Suspense } from 'react';
 import { createPortal } from 'react-dom';
 import { 
   ArrowRight, LayoutDashboard, LogOut, Play, 
   Layout, MessageCircle, PenTool, Search, Briefcase, Mail, Users, BarChart, Link as LinkIcon,
   CheckCircle, Zap, Shield, Rocket, Bot, Server, Star, Target, Globe, Gift, ChevronRight, TrendingUp, X, Menu, Smartphone, Cpu, Repeat, Phone, MoreVertical, Send, Smile, BookOpen, GraduationCap,
-  List, Facebook, Instagram, Youtube, TrendingUp as ChartIcon, DollarSign, Calendar, ChevronDown, ChevronUp, Box, ExternalLink
+  List, Facebook, Instagram, Youtube, TrendingUp as ChartIcon, DollarSign, Calendar, ChevronDown, ChevronUp, Box, ExternalLink,
+  ChevronsUpDown, Sparkles, Settings, HelpCircle
 } from 'lucide-react';
 ////////// Importación de Recharts para gráfica de ingresos - 27/05/2025 02:15 //////////
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
@@ -15,10 +16,14 @@ import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import { SocialCommentsBlock } from './shared/SocialCommentsBlock';
 import { ProductsMarqueeSection } from './shared/ProductsMarqueeSection';
+import { UpgradeModal } from './dashboard/UpgradeModal';
+
+const UserProfileModal = React.lazy(() => import('./dashboard/UserProfileModal'));
 
 interface PublicHomeProps {
   user: User | null;
   onLogout?: () => void;
+  onUpdateUser?: (updatedUser: User) => void;
 }
 
 
@@ -39,12 +44,27 @@ const profitabilityData = [
 ];
 ////////// Fin de datos - 27/05/2025 02:15 //////////
 
-export const PublicHome: React.FC<PublicHomeProps> = ({ user, onLogout }) => {
+export const PublicHome: React.FC<PublicHomeProps> = ({ user, onLogout, onUpdateUser }) => {
   const navigate = useNavigate();
   const [plans, setPlans] = useState<Plan[]>([]);
   
   ////////// Estado para el menú móvil - 27/05/2025 10:00 //////////
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  // Estados para menú desplegable de usuario en header y modales
+  const [headerUserMenuOpen, setHeaderUserMenuOpen] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const headerUserMenuRef = useRef<HTMLDivElement>(null);
+
+  const userInitials = React.useMemo(() => {
+    const rawName = (user?.name || user?.email || 'U').trim();
+    const parts = rawName.split(/\s+/).filter(Boolean);
+    if (parts.length >= 2) {
+      return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+    }
+    return rawName.slice(0, 2).toUpperCase();
+  }, [user?.name, user?.email]);
   
   // Estados para el efecto premium interactivo de la sección Hero sin imágenes
   const [heroMousePos, setHeroMousePos] = useState({ x: 0, y: 0 });
@@ -63,6 +83,20 @@ export const PublicHome: React.FC<PublicHomeProps> = ({ user, onLogout }) => {
          .then(setPlans)
          .catch(err => console.error("Error loading plans:", err));
   }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (headerUserMenuRef.current && !headerUserMenuRef.current.contains(event.target as Node)) {
+        setHeaderUserMenuOpen(false);
+      }
+    };
+    if (headerUserMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [headerUserMenuOpen]);
 
   useEffect(() => {
     if (isMenuOpen) {
@@ -131,16 +165,119 @@ export const PublicHome: React.FC<PublicHomeProps> = ({ user, onLogout }) => {
           
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             {user ? (
-              <>
-                 <span className="hidden lg:block text-sm text-[#B0B0B0] whitespace-nowrap">Hola, <span className="text-white font-bold">{user.name}</span></span>
-                   <button
+              <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+                <span className="hidden lg:block text-sm text-[#B0B0B0] whitespace-nowrap">Hola,</span>
+
+                <div className="relative" ref={headerUserMenuRef}>
+                  <button
                     type="button"
-                    onClick={() => navigate('/dashboard')}
-                    className="px-4 md:px-5 py-2 md:py-2.5 rounded-xl bg-white/10 text-white border border-white/10 font-bold hover:bg-[#FF5A1F] transition text-sm flex items-center gap-2 whitespace-nowrap shrink-0 cursor-pointer"
-                   >
-                     <LayoutDashboard className="w-4 h-4" /> <span className="hidden sm:inline">Panel</span>
-                   </button>
-              </>
+                    onClick={() => setHeaderUserMenuOpen(!headerUserMenuOpen)}
+                    className={`flex items-center gap-1.5 sm:gap-2.5 py-1 px-2 sm:py-1.5 sm:px-3 rounded-xl border transition-all cursor-pointer group text-left ${headerUserMenuOpen ? 'bg-zinc-800/90 border-white/20 shadow-lg' : 'bg-zinc-900/60 hover:bg-zinc-800/60 border-white/10 hover:border-white/20'}`}
+                    title="Perfil y configuración"
+                  >
+                    <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-zinc-800 border border-white/10 flex items-center justify-center text-xs font-bold text-zinc-200 shrink-0 overflow-hidden shadow-inner">
+                      {user.avatarUrl ? (
+                        <img src={user.avatarUrl} alt={user.name} className="w-full h-full object-cover" />
+                      ) : (
+                        userInitials
+                      )}
+                    </div>
+                    <div className="min-w-0 leading-tight hidden sm:block">
+                      <p className="text-xs sm:text-sm font-semibold text-zinc-100 group-hover:text-white truncate max-w-[110px] sm:max-w-[140px]">
+                        {user.name}
+                      </p>
+                      <p className="text-[10px] sm:text-[11px] font-bold text-[#FF5A1F] lowercase tracking-normal mt-0.5 truncate max-w-[115px] sm:max-w-[145px] block">
+                        {user.email}
+                      </p>
+                    </div>
+                    <ChevronsUpDown className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-zinc-400 group-hover:text-zinc-200 shrink-0 ml-0.5" />
+                  </button>
+
+                  {headerUserMenuOpen && (
+                    <div className="absolute right-0 top-full mt-2 w-56 rounded-2xl bg-[#12141a] border border-white/10 shadow-2xl p-1.5 z-50 animate-in fade-in zoom-in-95 duration-150 backdrop-blur-xl">
+                      <div className="px-3 py-2 border-b border-white/5 mb-1 sm:hidden">
+                        <p className="text-xs font-bold text-white truncate">{user.name}</p>
+                        <p className="text-[10px] text-[#FF5A1F] font-bold lowercase truncate max-w-[180px] block">{user.email}</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setHeaderUserMenuOpen(false);
+                          navigate('/dashboard');
+                        }}
+                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-zinc-300 hover:text-white hover:bg-white/[0.08] transition-colors cursor-pointer group"
+                      >
+                        <LayoutDashboard className="w-4 h-4 text-zinc-400 group-hover:text-[#FF5A1F] transition-colors shrink-0" />
+                        <span>Ir al Panel</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setHeaderUserMenuOpen(false);
+                          setShowUpgradeModal(true);
+                        }}
+                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-zinc-300 hover:text-white hover:bg-white/[0.08] transition-colors cursor-pointer group"
+                      >
+                        <Sparkles className="w-4 h-4 text-zinc-400 group-hover:text-amber-400 transition-colors shrink-0" />
+                        <span>Actualizar a Pro</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setHeaderUserMenuOpen(false);
+                          setShowProfileModal(true);
+                        }}
+                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-zinc-300 hover:text-white hover:bg-white/[0.08] transition-colors cursor-pointer group"
+                      >
+                        <Settings className="w-4 h-4 text-zinc-400 group-hover:text-white transition-colors shrink-0" />
+                        <span>Cuenta</span>
+                      </button>
+                      <a
+                        href="https://chat.whatsapp.com/Kbi49MLX7Nt5nrcnhGUia1?s=cl&p=a&mlu=4&ilr=4"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={() => setHeaderUserMenuOpen(false)}
+                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-zinc-300 hover:text-white hover:bg-white/[0.08] transition-colors cursor-pointer group"
+                      >
+                        <Users className="w-4 h-4 text-[#FF5A1F] transition-colors shrink-0" />
+                        <span>Comunidad WhatsApp</span>
+                      </a>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setHeaderUserMenuOpen(false);
+                          navigate('/contacto');
+                        }}
+                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-zinc-300 hover:text-white hover:bg-white/[0.08] transition-colors cursor-pointer group"
+                      >
+                        <HelpCircle className="w-4 h-4 text-[#FF5A1F] transition-colors shrink-0" />
+                        <span>Ayuda y Soporte</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setHeaderUserMenuOpen(false);
+                          onLogout?.();
+                        }}
+                        className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors cursor-pointer group border-t border-white/5 mt-1 pt-2 sm:hidden"
+                      >
+                        <LogOut className="w-4 h-4 text-red-400 transition-colors shrink-0" />
+                        <span>Cerrar sesión</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => onLogout?.()}
+                  className="flex items-center gap-1.5 sm:gap-2 py-1.5 sm:py-2 px-2.5 sm:px-4 rounded-xl bg-[#FF5A1F] hover:bg-[#E04E1A] text-white font-bold text-xs sm:text-sm shadow-md shadow-[#FF5A1F]/20 hover:shadow-lg hover:shadow-[#FF5A1F]/30 transition-all duration-200 active:scale-[0.98] cursor-pointer whitespace-nowrap shrink-0"
+                  title="Cerrar sesión"
+                >
+                  <LogOut className="w-4 h-4 shrink-0" />
+                  <span className="hidden md:inline">Cerrar sesión</span>
+                </button>
+              </div>
             ) : (
               <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
                 <button
@@ -232,13 +369,22 @@ export const PublicHome: React.FC<PublicHomeProps> = ({ user, onLogout }) => {
             {/* Acciones principales del menú */}
             <div className="mt-auto pt-3 border-t border-white/10 space-y-2.5 shrink-0">
               {user ? (
-                <button
-                  type="button"
-                  onClick={() => { navigate('/dashboard'); setIsMenuOpen(false); }}
-                  className="w-full py-3.5 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-base rounded-xl shadow-xl shadow-[#FF5A1F]/20 flex items-center justify-center gap-2 cursor-pointer"
-                >
-                  <LayoutDashboard className="w-5 h-5" /> Ir al Panel de Control
-                </button>
+                <div className="space-y-2.5">
+                  <button
+                    type="button"
+                    onClick={() => { navigate('/dashboard'); setIsMenuOpen(false); }}
+                    className="w-full py-3.5 bg-[#FF5A1F] hover:bg-[#D94A1E] text-white font-black text-base rounded-xl shadow-xl shadow-[#FF5A1F]/20 flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <LayoutDashboard className="w-5 h-5" /> Ir al Panel de Control
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setIsMenuOpen(false); onLogout?.(); }}
+                    className="w-full py-3 bg-white/5 hover:bg-red-500/15 text-red-400 border border-white/10 font-bold text-sm rounded-xl flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                  >
+                    <LogOut className="w-4 h-4" /> Cerrar sesión
+                  </button>
+                </div>
               ) : (
                 <div className="grid grid-cols-2 gap-2.5">
                   <button
@@ -647,6 +793,28 @@ export const PublicHome: React.FC<PublicHomeProps> = ({ user, onLogout }) => {
         </div>
       </footer>
       {/* ////////// Fin de actualización - 27/05/2025 10:00 ////////// */}
+
+      {user && (
+        <>
+          <Suspense fallback={null}>
+            {showProfileModal && (
+              <UserProfileModal
+                user={user}
+                onClose={() => setShowProfileModal(false)}
+                onUpdateUser={(updatedUser) => onUpdateUser?.(updatedUser)}
+                initialTab="profile"
+              />
+            )}
+          </Suspense>
+          <UpgradeModal
+            isOpen={showUpgradeModal}
+            onClose={() => setShowUpgradeModal(false)}
+            user={user}
+            userId={user.id}
+            currentPlan={user.planLimits?.planName}
+          />
+        </>
+      )}
     </div>
   );
 };

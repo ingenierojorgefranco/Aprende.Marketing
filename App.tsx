@@ -371,7 +371,7 @@ const App: React.FC = () => {
             domainSlug ? (
               <PublicLandingView forcedSlug={domainSlug} />
             ) : (
-              <PublicHome user={user} onLogout={handleLogout} />
+              <PublicHome user={user} onLogout={handleLogout} onUpdateUser={setUser} />
             )
           }
         />

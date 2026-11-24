@@ -527,11 +527,9 @@ export const DashboardHome: React.FC = () => {
                   <div className="py-12 flex flex-col items-center justify-center text-center">
                       <Folder className="w-16 h-16 text-slate-700 mb-4 animate-pulse" />
                       <h3 className="text-lg font-bold text-white mb-2">Aún no tienes proyectos activos</h3>
-                      <p className="text-gray-500 text-sm mb-6 max-w-md">Desbloquea tu primer proyecto digital desde la biblioteca maestra que tienes a continuación para comenzar.</p>
-                      <button onClick={() => {
-                          document.getElementById('biblioteca-maestra')?.scrollIntoView({ behavior: 'smooth' });
-                      }} className="bg-[#FF5A1F] hover:bg-[#E04D1A] text-white px-6 py-3 rounded-xl text-sm font-extrabold tracking-wider transition-all shadow-lg uppercase">
-                          Ir a la Biblioteca Maestra
+                      <p className="text-gray-500 text-sm mb-6 max-w-md">Desbloquea tu primer proyecto digital desde la sección de Proyectos para comenzar.</p>
+                      <button onClick={() => navigate('/dashboard/projects')} className="bg-[#FF5A1F] hover:bg-[#E04D1A] text-white px-6 py-3 rounded-xl text-sm font-extrabold tracking-wider transition-all shadow-lg uppercase">
+                          Ir a Proyectos
                       </button>
                   </div>
               ) : (
@@ -650,140 +648,6 @@ export const DashboardHome: React.FC = () => {
                                       <span>Gestionar Embudo</span>
                                       <ArrowRight className="w-4 h-4 shrink-0" />
                                   </button>
-                              </div>
-                          );
-                      })}
-                  </div>
-              )}
-          </div>
-
-          {/* BIBLIOTECA DE PLANTILLAS (MASTER LIBRARY - COMPLETAMENTE ANCHA Y PRECIOSA) */}
-          <div id="biblioteca-maestra" className="bg-[#0B1120] p-6 sm:p-8 rounded-[2rem] border border-slate-800 shadow-xl">
-              <div className="flex justify-between items-center mb-6 border-b border-slate-800 pb-4">
-                  <h2 className="text-sm font-black text-white uppercase tracking-widest flex items-center gap-2">
-                      <Folder className="w-4 h-4 text-[#FF5A1F]" /> 
-                      Biblioteca Maestra <span className="text-gray-500">/ Proyectos Listos para Desbloquear</span>
-                  </h2>
-                  <button onClick={() => navigate('/dashboard/projects')} className="text-[#FF5A1F] text-xs font-bold flex items-center gap-1 hover:underline">
-                      Ver todos los proyectos <ArrowRight className="w-3.5 h-3.5" />
-                  </button>
-              </div>
-
-              {lockedLibraryProjects.length === 0 && !loading ? (
-                  <div className="py-12 flex flex-col items-center justify-center text-center">
-                      <Folder className="w-16 h-16 text-slate-700 mb-4" />
-                      <h3 className="text-lg font-bold text-white mb-2">No hay proyectos pendientes por desbloquear</h3>
-                      <p className="text-gray-500 text-sm mb-6">Todos los proyectos de la biblioteca están desbloqueados.</p>
-                      <button onClick={() => navigate('/dashboard/projects')} className="bg-[#FF5A1F] hover:bg-[#E04D1A] text-white px-6 py-2 rounded-xl text-sm font-bold transition-colors">
-                          Ver mis proyectos
-                      </button>
-                  </div>
-              ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                      {lockedLibraryProjects.slice(0, 6).map((project) => {
-                          const isAlreadyUnlocked = Boolean(project.isUnlocked) || projects.some(p => String(p.masterParentId) === String(project.id));
-                          const projectImg = getOnboardingCardImage(project, masterLibrary);
-                          const title = getOnboardingCardTitle(project);
-                          const desc = getOnboardingCardDesc(project);
-
-                          return (
-                              <div
-                                  key={`library-card-${project.id}`}
-                                  onClick={() => {
-                                      if (isAlreadyUnlocked) {
-                                          const userClone = projects.find(p => String(p.masterParentId) === String(project.id));
-                                          navigate(`/dashboard/projects/${userClone?.id || project.id}/strategy`);
-                                      } else {
-                                          setUnlockModalProject(project);
-                                      }
-                                  }}
-                                  className={`group rounded-[2.5rem] p-6 flex flex-col justify-between h-full relative w-full cursor-pointer transition-all duration-300 space-y-4 ${
-                                      isAlreadyUnlocked
-                                          ? 'bg-gradient-to-b from-[#0c1a14]/90 to-[#07130e]/95 border-2 border-emerald-500/70 shadow-[0_0_30px_rgba(16,185,129,0.18)] hover:shadow-[0_0_40px_rgba(16,185,129,0.3)] hover:border-emerald-400'
-                                          : 'bg-gradient-to-b from-[#181409]/90 to-[#100e06]/95 border-2 border-yellow-500/50 shadow-[0_0_30px_rgba(234,179,8,0.12)] hover:shadow-[0_0_40px_rgba(234,179,8,0.22)] hover:border-yellow-400'
-                                  }`}
-                              >
-                                  {/* Header Badge */}
-                                  <div className="flex items-center justify-between">
-                                      <span className="px-2.5 py-0.5 rounded-lg text-[9px] font-black bg-zinc-800/80 text-zinc-400 uppercase tracking-widest">
-                                          PLANTILLA
-                                      </span>
-                                      {isAlreadyUnlocked ? (
-                                          <span className="px-3 py-1 bg-emerald-500/20 text-emerald-300 text-xs font-black uppercase tracking-wider rounded-xl flex items-center gap-1.5 border border-emerald-500/50">
-                                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> Desbloqueado
-                                          </span>
-                                      ) : (
-                                          <span className="px-3 py-1 bg-yellow-500/20 text-yellow-300 text-xs font-black uppercase tracking-wider rounded-xl flex items-center gap-1.5 border border-yellow-500/50">
-                                              <Lock className="w-3.5 h-3.5 text-yellow-400" /> Bloqueado
-                                          </span>
-                                      )}
-                                  </div>
-
-                                  {/* Cover Image Container */}
-                                  <div className="h-44 sm:h-48 bg-zinc-900 relative overflow-hidden rounded-2xl shrink-0 border border-zinc-800/60">
-                                      {projectImg ? (
-                                          <img
-                                              src={projectImg}
-                                              alt={title}
-                                              referrerPolicy="no-referrer"
-                                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                                          />
-                                      ) : (
-                                          <div className="w-full h-full flex items-center justify-center bg-zinc-900">
-                                              <Package className="w-10 h-10 text-zinc-700" />
-                                          </div>
-                                      )}
-                                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none"></div>
-                                  </div>
-
-                                  {/* Text Content */}
-                                  <div className="flex-1 flex flex-col justify-between space-y-2">
-                                      <div>
-                                          <h3 className={`text-base sm:text-lg font-bold line-clamp-2 transition-colors duration-200 ${
-                                              isAlreadyUnlocked ? 'text-white group-hover:text-emerald-400' : 'text-white group-hover:text-yellow-400'
-                                          }`}>
-                                              {title}
-                                          </h3>
-                                          <p className="text-zinc-400 text-xs sm:text-sm mt-2 leading-relaxed font-normal line-clamp-3">
-                                              {desc}
-                                          </p>
-                                      </div>
-                                  </div>
-
-                                  {/* Action Buttons */}
-                                  <div className="pt-2">
-                                      {isAlreadyUnlocked ? (
-                                          <button
-                                              type="button"
-                                              onClick={(e) => {
-                                                  e.stopPropagation();
-                                                  const userClone = projects.find(p => String(p.masterParentId) === String(project.id));
-                                                  navigate(`/dashboard/projects/${userClone?.id || project.id}/strategy`);
-                                              }}
-                                              className="w-full py-3 px-4 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-extrabold text-xs uppercase tracking-wider rounded-xl shadow-[0_4px_20px_rgba(16,185,129,0.35)] flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-[0.98]"
-                                          >
-                                              <span>VER PROYECTO</span>
-                                              <ArrowRight className="w-4 h-4 shrink-0" />
-                                          </button>
-                                      ) : (
-                                          <>
-                                              <button
-                                                  type="button"
-                                                  onClick={(e) => {
-                                                      e.stopPropagation();
-                                                      setUnlockModalProject(project);
-                                                  }}
-                                                  className="w-full py-3 px-4 bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-400 hover:to-amber-400 text-black font-extrabold text-xs uppercase tracking-wider rounded-xl shadow-[0_4px_20px_rgba(234,179,8,0.35)] flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-[0.98]"
-                                              >
-                                                  <Unlock className="w-4 h-4 shrink-0" />
-                                                  <span>DESBLOQUEAR PROYECTO</span>
-                                              </button>
-                                              <p className="text-center text-[10px] text-zinc-500 font-bold uppercase tracking-widest pt-2">
-                                                  Consume 1 cupo de proyecto en tu plan
-                                              </p>
-                                          </>
-                                      )}
-                                  </div>
                               </div>
                           );
                       })}
