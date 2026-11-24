@@ -93,8 +93,8 @@ export const AdminPlans: React.FC = () => {
                     maxDomains: (m.maxDomains || 1) * multiplier,
                     maxArticles: (m.maxArticles || 1) * (multiplier > 1 ? 12 : 1),
                     maxEmailSequences: (m.maxEmailSequences || 1) * multiplier,
-                    maxEmailSequencesNurturing: m.maxEmailSequencesNurturing || 15,
-                    maxWhatsAppLaunches: (m.maxWhatsAppLaunches || 1) * multiplier,
+                    maxEmailSequencesNurturing: m.maxEmailSequencesNurturing ?? 0,
+                    maxWhatsAppLaunches: (m.maxWhatsAppLaunches ?? 0) * multiplier,
                     maxHooks: (m.maxHooks || 10) * (multiplier > 1 ? 12 : 1)
                 }
             }

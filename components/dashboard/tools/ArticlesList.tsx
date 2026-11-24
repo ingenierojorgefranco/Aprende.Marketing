@@ -58,7 +58,11 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
   
   // Modals States
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
-  const [showLockModal, setShowLockModal] = useState(false);
+  // const [showLockModal, setShowLockModal] = useState(false); // Modal intermedia Plan PRO deshabilitada temporalmente
+  const showLockModal = false;
+  const setShowLockModal = (open: boolean) => {
+    if (open) setShowUpgradeModal(true);
+  };
   const [showVideoModal, setShowVideoModal] = useState(false);
   
   // --- Nuevo Estado para Restricción de Eliminación ---
@@ -207,6 +211,7 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
           reason="Has alcanzado tu cupo mensual de artículos. Actualiza tu plan para seguir generando contenido SEO."
       />
 
+      {/* Modal intermedia Plan PRO comentada temporalmente para dirigir directo al panel de pago
       {showLockModal && (
           <div className="fixed inset-0 z-[250] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-in fade-in" onClick={() => setShowLockModal(false)}>
               <div className="bg-[#0B0B0B] border border-amber-500/20 rounded-[2.5rem] w-full max-w-lg shadow-2xl overflow-hidden animate-in zoom-in-95 duration-500 flex flex-col relative" onClick={e => e.stopPropagation()}>
@@ -253,6 +258,7 @@ export const ArticlesList: React.FC<ArticlesListProps> = ({ onCreateNew }) => {
               </div>
           </div>
       )}
+      */}
 
       {/* HERO HEADER */}
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-900 via-purple-950/20 to-black border border-gray-800 shadow-2xl">

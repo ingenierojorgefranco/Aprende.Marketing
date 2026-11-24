@@ -70,15 +70,15 @@ export const WhatsAppLaunchManager: React.FC = () => {
 
     // Lógica de límites respetando simulación
     const isRealAdmin = (user.role === 'admin' || user.planLimits?.planName === 'admin') && !isSimulating;
-    const maxLaunches = user.planLimits?.maxWhatsAppLaunches || 1;
+    const maxLaunches = user.planLimits?.maxWhatsAppLaunches ?? 0;
     const currentCount = launches.length;
     const isAtLimit = !isRealAdmin && currentCount >= maxLaunches;
-    const usagePercent = Math.min(100, (currentCount / maxLaunches) * 100);
+    const usagePercent = maxLaunches > 0 ? Math.min(100, (currentCount / maxLaunches) * 100) : (isRealAdmin ? 0 : 100);
 
     // Lógica de color de progreso sincronizada con MyPages
     let progressColor = "bg-green-500";
     if (usagePercent > 50) progressColor = "bg-yellow-500";
-    if (usagePercent > 85) progressColor = isRealAdmin ? "bg-green-500" : "bg-red-500";
+    if (usagePercent > 85 || (!isRealAdmin && maxLaunches === 0)) progressColor = isRealAdmin ? "bg-green-500" : "bg-red-500";
 
     const handleCreateNew = () => {
         if (isAtLimit) {
@@ -96,7 +96,7 @@ export const WhatsAppLaunchManager: React.FC = () => {
                 user={user}
                 userId={user.id}
                 currentPlan={user.planLimits?.planName}
-                reason={`Has alcanzado el límite de ${maxLaunches} lanzamientos de tu plan.`}
+                reason={maxLaunches === 0 ? 'Los lanzamientos de WhatsApp no están incluidos en tu plan actual. Actualiza al Plan PRO para desbloquear esta herramienta.' : `Has alcanzado el límite de ${maxLaunches} lanzamientos de tu plan.`}
             />
 
             {/* HEADER */}
@@ -131,7 +131,11 @@ export const WhatsAppLaunchManager: React.FC = () => {
                                 {isAtLimit && (
                                     <div className="mt-3 flex items-start gap-2 text-xs text-yellow-300 bg-yellow-900/20 p-4 rounded-lg border border-yellow-700/30">
                                         <AlertCircle className="w-3 h-3 shrink-0 mt-0.5" />
-                                        <span className="text-[1rem] leading-[1.5rem]">Has alcanzado el límite de tu plan. Actualiza para gestionar más nichos.</span>
+                                        <span className="text-[1rem] leading-[1.5rem]">
+                                            {maxLaunches === 0
+                                                ? 'No disponible en tu plan actual. Actualiza al Plan PRO para crear lanzamientos de WhatsApp.'
+                                                : 'Has alcanzado el límite de tu plan. Actualiza para gestionar más nichos.'}
+                                        </span>
                                     </div>
                                 )}
                             </div>

@@ -121,7 +121,11 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
     const [masterParentId, setMasterParentId] = useState<string | null>(null);
     const [projectChecked, setProjectChecked] = useState(false);
     const [showUpgradeModalLocal, setShowUpgradeModalLocal] = useState(false);
-    const [showLockModal, setShowLockModal] = useState(false);
+    // const [showLockModal, setShowLockModal] = useState(false); // Modal intermedia Plan PRO deshabilitada temporalmente
+    const showLockModal = false;
+    const setShowLockModal = (open: boolean) => {
+        if (open) setShowUpgradeModalLocal(true);
+    };
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
 
@@ -1429,6 +1433,7 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
                 reason="Las plantillas completas de Carruseles de Instagram y Facebook diseñadas profesionalmente por nuestro equipo de expertos están reservadas para usuarios del Plan PRO."
             />
 
+            {/* Modal intermedia Plan PRO comentada temporalmente para dirigir directo al panel de pago
             {showLockModal && (
                 <div className="fixed inset-0 z-[250] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-in fade-in" onClick={() => setShowLockModal(false)}>
                     <div className="bg-[#0B0B0B] border border-amber-500/20 rounded-[2.5rem] w-full max-w-lg shadow-2xl overflow-hidden animate-in zoom-in-95 duration-500 flex flex-col relative" onClick={e => e.stopPropagation()}>
@@ -1475,6 +1480,7 @@ export const ProjectStrategy_Carousels: React.FC<ProjectStrategy_CarouselsProps>
                     </div>
                 </div>
             )}
+            */}
         </div>
     );
 };

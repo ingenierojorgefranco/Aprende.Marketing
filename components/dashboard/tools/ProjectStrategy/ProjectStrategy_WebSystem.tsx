@@ -55,7 +55,17 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
     const [showDomainModal, setShowDomainModal] = useState(false);
     const [domainModalEditMode, setDomainModalEditMode] = useState(false);
     const [showUpgradeModal, setShowUpgradeModal] = useState(false);
-    const [showLockModal, setShowLockModal] = useState(false);
+    // const [showLockModal, setShowLockModal] = useState(false); // Modal intermedia Plan PRO deshabilitada temporalmente
+    const showLockModal = false;
+    const setShowLockModal = (open: boolean) => {
+        if (open) {
+            if (onUpgrade) {
+                onUpgrade();
+            } else {
+                setShowUpgradeModal(true);
+            }
+        }
+    };
     const [linkedPages, setLinkedPages] = useState<LandingPage[]>([]);
     const [loadingLocal, setLoadingLocal] = useState(false);
     const [domainCount, setDomainCount] = useState(0);
@@ -1559,6 +1569,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                 />
             )}
 
+            {/* Modal intermedia Plan PRO comentada temporalmente para dirigir directo al panel de pago
             {showLockModal && (
                 <div className="fixed inset-0 z-[250] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-in fade-in" onClick={() => setShowLockModal(false)}>
                     <div className="bg-[#0B0B0B] border border-amber-500/20 rounded-[2.5rem] w-full max-w-lg shadow-2xl overflow-hidden animate-in zoom-in-95 duration-500 flex flex-col relative" onClick={e => e.stopPropagation()}>
@@ -1609,6 +1620,7 @@ export const ProjectStrategy_WebSystem: React.FC<ProjectStrategy_WebSystemProps>
                     </div>
                 </div>
             )}
+            */}
         </>
     );
 };

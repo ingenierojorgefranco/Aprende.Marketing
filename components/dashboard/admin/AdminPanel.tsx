@@ -412,7 +412,7 @@ export const AdminPanel: React.FC = () => {
             maxArticles: plan.limitsConfig.maxArticles || 0,
             maxEmailSequences: plan.limitsConfig.maxEmailSequences !== undefined ? plan.limitsConfig.maxEmailSequences : 1,
             maxEmailSequencesNurturing: plan.limitsConfig.maxEmailSequencesNurturing !== undefined ? plan.limitsConfig.maxEmailSequencesNurturing : 15,
-            maxWhatsAppLaunches: plan.limitsConfig.maxWhatsAppLaunches || 1,
+            maxWhatsAppLaunches: plan.limitsConfig.maxWhatsAppLaunches ?? 0,
             maxHooks: plan.limitsConfig.maxHooks || 10,
             maxCarousels: plan.limitsConfig.maxCarousels !== undefined ? plan.limitsConfig.maxCarousels : 50,
             features: { ...plan.limitsConfig.features }
@@ -430,7 +430,7 @@ export const AdminPanel: React.FC = () => {
                 maxArticles: plan.limitsConfig.maxArticles || 0,
                 maxEmailSequences: plan.limitsConfig.maxEmailSequences !== undefined ? plan.limitsConfig.maxEmailSequences : 1,
                 maxEmailSequencesNurturing: plan.limitsConfig.maxEmailSequencesNurturing !== undefined ? plan.limitsConfig.maxEmailSequencesNurturing : 15,
-                maxWhatsAppLaunches: plan.limitsConfig.maxWhatsAppLaunches || 1,
+                maxWhatsAppLaunches: plan.limitsConfig.maxWhatsAppLaunches ?? 0,
                 maxHooks: plan.limitsConfig.maxHooks || 10,
                 maxCarousels: plan.limitsConfig.maxCarousels !== undefined ? plan.limitsConfig.maxCarousels : 50,
                 features: { ...plan.limitsConfig.features }

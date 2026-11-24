@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "(cd backend && npm run dev) & vite",
+    "dev": "(cd backend && ([ -d node_modules ] || npm install --no-audit --no-fund) && PORT=3001 npm run dev) & vite",
     "build": "tsc && vite build",
     "lint": "tsc --noEmit",
     "preview": "vite preview"

@@ -2,6 +2,7 @@ import express from 'express';
 import pool from '../db.js';
 import { generateContent, generateEmailSequenceContent, generateSingleEvergreenEmail } from '../geminiService.js';
 import { authMiddleware } from '../authMiddleware.js';
+import { getEffectiveLimits } from './authRoutes.js';
 import * as stripeService from '../stripeService.js';
 
 ////////// Actualización: Importación de servicio Systeme.io para sincronización manual - 07/06/2025 19:40 //////////
@@ -207,6 +208,28 @@ router.post('/email/generate-evergreen', authMiddleware, async (req, res) => {
     if (!projectId || !articleData) return res.status(400).json({ error: "Faltan datos requeridos (projectId, articleData)" });
 
     try {
+        if (req.user.role !== 'admin') {
+            const effectiveLimits = await getEffectiveLimits(req.user.id);
+            const maxNurturing = effectiveLimits?.maxEmailSequencesNurturing ?? 0;
+
+            const [countRows] = await pool.query(
+                `SELECT COUNT(*) as total
+                 FROM email_messages em
+                 INNER JOIN email_sequences es ON em.sequence_id = es.id
+                 WHERE es.user_id = ? AND em.type = 'nurturing'
+                   AND (em.is_generated = 1 OR (em.content_html IS NOT NULL AND em.content_html != ''))`,
+                [req.user.id]
+            );
+            const currentTotal = Number(countRows[0]?.total || 0);
+            if (currentTotal >= maxNurturing) {
+                return res.status(403).json({
+                    error: maxNurturing === 0
+                        ? 'Los correos de nutrición no están incluidos en tu plan actual. Actualiza al Plan PRO para desbloquear esta función.'
+                        : `Has alcanzado el límite de ${maxNurturing} correos de nutrición de tu plan.`
+                });
+            }
+        }
+
         const result = await generateSingleEvergreenEmail(projectId, articleData);
         res.json(result);
     } catch (e) {

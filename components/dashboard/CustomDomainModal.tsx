@@ -242,6 +242,20 @@ Por favor, revisa el dominio y los registros DNS en el servidor de Google Cloud 
         setFeedbackMsg(null);
     };
 
+    // Redirigir directamente al panel de pago cuando el usuario está en plan gratuito (modal intermedia Plan PRO deshabilitada temporalmente)
+    if (isRestricted) {
+        return (
+            <UpgradeModal
+                isOpen={true}
+                onClose={onClose}
+                user={currentUser || undefined}
+                userId={currentUser?.id}
+                currentPlan={currentPlan}
+                projectId={projectId}
+            />
+        );
+    }
+
     return (
         <div 
             onClick={onClose}
@@ -269,9 +283,9 @@ Por favor, revisa el dominio y los registros DNS en el servidor de Google Cloud 
                     </p>
                 </div>
 
+                {/* Tarjeta intermedia Plan PRO comentada temporalmente para dirigir directo al panel de pago
                 {isRestricted ? (
                     <div className="bg-gradient-to-b from-primary/10 via-black/40 to-black/60 border border-primary/20 rounded-3xl p-8 text-center shadow-2xl relative overflow-hidden my-6">
-                        {/* Decorative glow background */}
                         <div className="absolute -top-12 -left-12 w-32 h-32 bg-primary/25 rounded-full blur-2xl pointer-events-none"></div>
                         <div className="absolute -bottom-12 -right-12 w-32 h-32 bg-primary/15 rounded-full blur-2xl pointer-events-none"></div>
                         
@@ -303,6 +317,7 @@ Por favor, revisa el dominio y los registros DNS en el servidor de Google Cloud 
                         </div>
                     </div>
                 ) : (
+                */}
                     <>
                         {/* Video Tutorial Integrado */}
                         <div className="mb-8 bg-black/40 border border-white/5 rounded-3xl p-6">
@@ -596,7 +611,7 @@ Por favor, revisa el dominio y los registros DNS en el servidor de Google Cloud 
                             </div>
                         </div>
                     </>
-                )}
+                {/* )} */}
 
                 {showUpgradeModal && (
                     <UpgradeModal 

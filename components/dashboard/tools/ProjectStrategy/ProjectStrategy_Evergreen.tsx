@@ -174,10 +174,10 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
     // Lógica de límites
     const isRealAdmin = (planLimits?.planName === 'admin' || user?.role === 'admin') && !isSimulating;
     const emailsUsed = nurturingMessages.length;
-    const maxEmails = planLimits?.maxEmailSequencesNurturing || 0;
-    const usagePercent = maxEmails > 0 ? Math.min(100, (emailsUsed / maxEmails) * 100) : 0;
-    const isLimitReached = !isRealAdmin && maxEmails > 0 && emailsUsed >= maxEmails;
-    const progressColor = (usagePercent > 90 && !isRealAdmin) ? 'bg-red-500' : usagePercent > 70 ? 'bg-orange-500' : 'bg-blue-500';
+    const maxEmails = planLimits?.maxEmailSequencesNurturing ?? user?.planLimits?.maxEmailSequencesNurturing ?? 0;
+    const isLimitReached = !isRealAdmin && emailsUsed >= maxEmails;
+    const usagePercent = maxEmails > 0 ? Math.min(100, (emailsUsed / maxEmails) * 100) : (isRealAdmin ? 0 : 100);
+    const progressColor = ((usagePercent > 90 || maxEmails === 0) && !isRealAdmin) ? 'bg-red-500' : usagePercent > 70 ? 'bg-orange-500' : 'bg-blue-500';
 
     const handleGoToContent = () => {
         if (onGoToContent) {
@@ -250,6 +250,11 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
     };
 
     const handleGenerateEmail = async () => {
+        if (isLimitReached) {
+            setShowConfirmModal(false);
+            onUpgrade();
+            return;
+        }
         const targetIdx = (activeEvergreenEmail >= 0 && activeEvergreenEmail < articlesToDisplay.length) ? activeEvergreenEmail : 0;
         const article = articlesToDisplay[targetIdx] || (linkedArticles && linkedArticles[targetIdx]);
         if (!article || generationStatus === 'generating') return;
@@ -541,18 +546,27 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                     <div className="mb-10 p-6 bg-black/40 rounded-3xl border border-white/5 space-y-4">
                         <div className="flex justify-between items-center mb-2 text-sm">
                             <span className="text-gray-300 font-medium text-[1rem] leading-[2rem]">Correos de Nutrición</span>
-                            <span className="text-white font-bold">{emailsUsed} / {maxEmails}</span>
+                            <span className="text-white font-bold">{emailsUsed} / {isRealAdmin ? '∞' : maxEmails}</span>
                         </div>
-                        <div className="h-2.5 w-full bg-gray-100 rounded-full overflow-hidden">
+                        <div className="h-2.5 w-full bg-gray-700 rounded-full overflow-hidden">
                             <div 
                                 className={`h-full transition-all duration-1000 ${progressColor}`}
-                                style={{ width: `${usagePercent}%` }}
+                                style={{ width: `${isRealAdmin ? (emailsUsed > 0 ? 100 : 0) : usagePercent}%` }}
                             ></div>
                         </div>
                         {isLimitReached && (
-                            <div className="flex items-center gap-2 text-[10px] font-bold text-orange-400 uppercase tracking-wider animate-pulse">
-                                <Crown className="w-3 h-3" /> Has alcanzado el límite de tu plan
-                            </div>
+                            <button
+                                type="button"
+                                onClick={onUpgrade}
+                                className="w-full flex items-center gap-2 text-xs font-bold text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/25 rounded-xl px-3.5 py-2.5 text-left transition-colors cursor-pointer"
+                            >
+                                <Crown className="w-3.5 h-3.5 shrink-0 text-amber-400" />
+                                <span>
+                                    {maxEmails === 0
+                                        ? 'No disponible en tu plan actual. Actualiza al Plan PRO para generar correos.'
+                                        : 'Has alcanzado el límite de tu plan. Actualiza al Plan PRO.'}
+                                </span>
+                            </button>
                         )}
                     </div>
 
@@ -863,13 +877,13 @@ export const ProjectStrategy_Evergreen: React.FC<ProjectStrategy_EvergreenProps>
                                     Confirmar Consumo de <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">Créditos</span>
                                 </h1>
                                 <p className="text-white text-lg leading-relaxed font-normal">
-                                    Al desbloquear este artículo estratégico se consumirá 1 crédito de tu plan actual.
+                                    Al desbloquear este correo estratégico se consumirá 1 crédito de tu plan actual.
                                 </p>
                             </div>
                             <div className="bg-black/30 backdrop-blur-md rounded-2xl p-6 border border-white/10 shadow-inner text-left">
                                 <div className="flex justify-between items-center mb-3">
-                                    <span className="text-gray-400 text-[10px] font-black uppercase tracking-[0.2em]">Créditos de Artículos</span>
-                                    <span className="text-white font-bold text-sm">{emailsUsed} / {maxEmails}</span>
+                                    <span className="text-gray-400 text-[10px] font-black uppercase tracking-[0.2em]">Correos de Nutrición</span>
+                                    <span className="text-white font-bold text-sm">{emailsUsed} / {isRealAdmin ? '∞' : maxEmails}</span>
                                 </div>
                                 <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden shadow-inner p-0.5 border border-white/5">
                                     <div className={`h-full transition-all duration-[1500ms] ease-out rounded-full shadow-lg ${progressColor}`} style={{ width: `${usagePercent}%` }}></div>

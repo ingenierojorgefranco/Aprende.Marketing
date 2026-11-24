@@ -187,6 +187,7 @@ export const WhatsAppOnboardingStep: React.FC<WhatsAppOnboardingStepProps> = ({
             <span>Tus datos están seguros. Cero spam.</span>
           </div>
 
+          {/* Opción oculta temporalmente para requerir el registro de WhatsApp
           <div className="pt-1">
             <button
               type="button"
@@ -197,6 +198,7 @@ export const WhatsAppOnboardingStep: React.FC<WhatsAppOnboardingStepProps> = ({
               Lo haré más tarde
             </button>
           </div>
+          */}
         </div>
       </form>
     </motion.div>
@@ -257,6 +259,7 @@ export const WhatsAppPromptModal: React.FC<WhatsAppPromptModalProps> = ({
       >
         <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-72 h-72 bg-[#FF5A1F]/15 blur-3xl rounded-full pointer-events-none" />
 
+        {/* Botón de cerrar oculto temporalmente para requerir el registro de WhatsApp
         <button
           type="button"
           onClick={onDismiss}
@@ -266,6 +269,7 @@ export const WhatsAppPromptModal: React.FC<WhatsAppPromptModalProps> = ({
         >
           <X className="w-5 h-5" />
         </button>
+        */}
 
         <div className="relative space-y-6">
           <div className="w-14 h-14 bg-[#FF5A1F] rounded-2xl flex items-center justify-center mx-auto border border-white/15 shadow-xl shadow-[#FF5A1F]/25">
@@ -348,6 +352,7 @@ export const WhatsAppPromptModal: React.FC<WhatsAppPromptModalProps> = ({
               <span>Tus datos están seguros. Cero spam.</span>
             </div>
 
+            {/* Opción oculta temporalmente para requerir el registro de WhatsApp
             <div>
               <button
                 type="button"
@@ -358,6 +363,7 @@ export const WhatsAppPromptModal: React.FC<WhatsAppPromptModalProps> = ({
                 Lo haré más tarde
               </button>
             </div>
+            */}
           </form>
         </div>
       </motion.div>

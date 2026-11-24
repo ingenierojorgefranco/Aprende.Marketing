@@ -542,15 +542,16 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
     };
 
     const isRealAdmin = (user?.role === 'admin' || planLimits?.planName === 'admin') && !isSimulating;
-    const maxLaunches = planLimits?.maxWhatsAppLaunches || user?.planLimits?.maxWhatsAppLaunches || 1;
+    const maxLaunches = planLimits?.maxWhatsAppLaunches ?? user?.planLimits?.maxWhatsAppLaunches ?? 0;
     const launchUsed = launchCount;
     const planRawName = (planLimits?.planName || user?.planLimits?.planName || user?.plan || 'starter').toLowerCase();
     const isFreeUser = !isRealAdmin && (planRawName === 'starter' || planRawName === 'free' || planRawName === 'gratis' || planRawName === 'gratuito' || planRawName === 'basico' || planRawName === 'básico' || !planRawName);
     const isLimitReached = !isRealAdmin && launchUsed >= maxLaunches;
-    const usagePercent = Math.min(100, (launchUsed / maxLaunches) * 100);
+    const hasGeneratedLaunch = whatsappLaunch.some(m => m.isGenerated);
+    const usagePercent = maxLaunches > 0 ? Math.min(100, (launchUsed / maxLaunches) * 100) : (isRealAdmin ? 0 : 100);
     let progressColor = "bg-green-500";
     if (usagePercent > 50) progressColor = "bg-yellow-500";
-    if (usagePercent > 85) progressColor = isRealAdmin ? "bg-green-500" : "bg-red-500";
+    if (usagePercent > 85 || (!isRealAdmin && maxLaunches === 0)) progressColor = isRealAdmin ? "bg-green-500" : "bg-red-500";
 
     const togglePhase = (phaseIdx: number) => {
         const newOpen = new Set(openPhases);
@@ -691,7 +692,7 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                     <div className="max-w-[70em] mx-auto px-4 md:px-0 mb-12">
                         <div 
                             className="bg-gradient-to-br from-orange-600/20 to-orange-900/40 border border-orange-500/30 p-8 rounded-[2.5rem] animate-in slide-in-from-top-2 duration-500 cursor-pointer hover:bg-orange-500/10 transition-all group relative overflow-hidden shadow-2xl shadow-orange-900/20" 
-                            onClick={handleOpenDateTimeModal}
+                            onClick={isLimitReached && !hasGeneratedLaunch ? onUpgrade : handleOpenDateTimeModal}
                         >
                             <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
                                 <Calendar className="w-24 h-24 text-orange-400" />
@@ -711,7 +712,7 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                                 </div>
                                 
                                 <button className="px-8 py-4 bg-orange-600 hover:bg-orange-500 border border-orange-400/30 rounded-2xl text-white font-black text-xs uppercase tracking-widest transition-all group-hover:scale-105 active:scale-95 shadow-lg shadow-orange-600/20">
-                                    Cambiar Fecha y Hora
+                                    {isLimitReached && !hasGeneratedLaunch ? '👑 Actualizar a PRO' : 'Cambiar Fecha y Hora'}
                                 </button>
                             </div>
                         </div>
@@ -731,6 +732,15 @@ export const ProjectStrategy_WhatsApp: React.FC<ProjectStrategy_WhatsAppProps> =
                                             <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden shadow-inner">
                                                 <div className={`h-full transition-all duration-1000 ease-out shadow-lg ${progressColor}`} style={{ width: `${isRealAdmin ? (launchUsed > 0 ? 100 : 0) : usagePercent}%` }}></div>
                                             </div>
+                                            {!isRealAdmin && maxLaunches === 0 && (
+                                                <button
+                                                    type="button"
+                                                    onClick={onUpgrade}
+                                                    className="mt-3 w-full text-left text-xs text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/25 rounded-lg px-3 py-2 transition-colors cursor-pointer"
+                                                >
+                                                    No disponible en tu plan actual. <span className="font-bold underline">Actualiza al Plan PRO</span> para crear lanzamientos.
+                                                </button>
+                                            )}
                                         </div>
                                     </div>
 

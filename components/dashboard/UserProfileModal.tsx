@@ -525,7 +525,7 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ user, onClose, onUp
                                                 >
                                                     <div className="flex items-center gap-3">
                                                         <Smartphone className="w-5 h-5 text-rose-400" />
-                                                        <span className="text-sm font-bold text-white">Lanzamientos WhatsApp ({resources.whatsapp.length} / {user.planLimits?.maxWhatsAppLaunches || 1})</span>
+                                                        <span className="text-sm font-bold text-white">Lanzamientos WhatsApp ({resources.whatsapp.length} / {user.planLimits?.maxWhatsAppLaunches ?? 0})</span>
                                                     </div>
                                                     {expandedResource === 'whatsapp' ? <ChevronUp className="w-4 h-4 text-gray-500" /> : <ChevronDown className="w-4 h-4 text-gray-500" />}
                                                 </button>
