@@ -122,7 +122,7 @@ export const WhatsAppOnboardingStep: React.FC<WhatsAppOnboardingStepProps> = ({
       {/* Formulario minimalista de teléfono */}
       <form onSubmit={handleSubmit} className="max-w-lg mx-auto space-y-5 pt-2">
         <div className="flex flex-col sm:flex-row gap-3">
-          <div className="relative sm:w-44 shrink-0">
+          <div className="relative sm:w-52 shrink-0">
             <select
               aria-label="Indicativo de país"
               value={selectedCountry}
@@ -134,7 +134,7 @@ export const WhatsAppOnboardingStep: React.FC<WhatsAppOnboardingStepProps> = ({
             >
               {COUNTRY_DIAL_CODES.map((c) => (
                 <option key={c.code} value={c.code} className="bg-zinc-950 text-white">
-                  {c.flag} {c.dial} ({c.code === 'OTHER' ? 'Otro' : c.code})
+                  {c.label} {c.dial}
                 </option>
               ))}
             </select>
@@ -291,7 +291,7 @@ export const WhatsAppPromptModal: React.FC<WhatsAppPromptModalProps> = ({
 
           <form onSubmit={handleSubmit} className="space-y-4 pt-1">
             <div className="flex flex-col sm:flex-row gap-2.5">
-              <div className="sm:w-40 shrink-0">
+              <div className="sm:w-52 shrink-0">
                 <select
                   aria-label="Indicativo de país"
                   value={selectedCountry}
@@ -303,7 +303,7 @@ export const WhatsAppPromptModal: React.FC<WhatsAppPromptModalProps> = ({
                 >
                   {COUNTRY_DIAL_CODES.map((c) => (
                     <option key={c.code} value={c.code} className="bg-zinc-950 text-white">
-                      {c.flag} {c.dial} ({c.code === 'OTHER' ? 'Otro' : c.code})
+                      {c.label} {c.dial}
                     </option>
                   ))}
                 </select>
