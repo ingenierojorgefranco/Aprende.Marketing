@@ -157,12 +157,14 @@ export const getEffectiveLimits = async (userId, bypassCache = false) => {
         const now = new Date();
         const activeSlugs = [];
         let primarySub = null;
+        let hadExpiredSub = false;
 
         for (const sub of subsToCheck) {
             if (sub.expires_at && new Date(sub.expires_at) < now) {
                 // Ha expirado realmente. Marcar como cancelado definitivamente.
                 console.log(`[Limits] Suscripción ${sub.id} (${sub.plan_slug}) ha expirado. Marcando como canceled.`);
                 await pool.query("UPDATE user_subscriptions SET status = 'canceled' WHERE id = ?", [sub.id]);
+                hadExpiredSub = true;
                 // No la añadimos a activeSlugs
             } else {
                 // Sigue activa o está pendiente de cancelar pero aún no vence
@@ -205,6 +207,23 @@ export const getEffectiveLimits = async (userId, bypassCache = false) => {
             if (row.max_hooks !== null && row.max_hooks !== undefined) {
                 directMaxHooks = row.max_hooks;
             }
+        }
+
+        // Si alguna suscripción expiró y ya no queda ninguna activa (y el usuario no tiene límites custom manuales),
+        // degradamos automáticamente users.plan_limits a starter para que el vencimiento tenga efecto real.
+        if (hadExpiredSub && activeSlugs.length === 0 && !isUserCustom) {
+            console.log(`[Limits] Usuario ${userId} sin suscripciones activas tras vencimiento. Degradando plan_limits a starter.`);
+            const [starterRows] = await pool.query("SELECT limits_config FROM plans WHERE slug = 'starter' LIMIT 1");
+            const starterConfig = starterRows.length > 0
+                ? (typeof starterRows[0].limits_config === 'string' ? JSON.parse(starterRows[0].limits_config) : starterRows[0].limits_config)
+                : DEFAULT_LIMITS;
+            const downgradedLimits = { ...starterConfig, planName: 'starter', planSlug: 'starter' };
+            await pool.query(
+                "UPDATE users SET subscription_status = 'canceled', plan_limits = ? WHERE id = ?",
+                [JSON.stringify(downgradedLimits), userId]
+            );
+            directPlanSlug = 'starter';
+            directLimits = downgradedLimits;
         }
 
         // --- LÓGICA JERÁRQUICA INTELIGENTE (EXPANSIÓN) ---

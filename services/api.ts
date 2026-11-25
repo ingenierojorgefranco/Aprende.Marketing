@@ -1826,11 +1826,22 @@ export const api = {
         } catch {}
     },
 
-    adminCreateSubscription: async (userId: string, planId: string): Promise<any> => {
+    adminCreateSubscription: async (
+        userId: string,
+        planId: string,
+        options?: {
+            periodicity?: 'Mensual' | 'Anual';
+            price?: number;
+            startDate?: string;
+            expiresAt?: string;
+            paymentMethod?: string;
+            recordPayment?: boolean;
+        }
+    ): Promise<any> => {
         const res = await fetchWithFallback(`/admin/users/${userId}/subscriptions`, { 
             method: 'POST', 
             headers: getAuthHeaders(), 
-            body: JSON.stringify({ planId, status: 'active' }) 
+            body: JSON.stringify({ planId, status: 'active', ...(options || {}) }) 
         });
         clearCache('userSubscriptions');
         clearCache('usersList');

@@ -232,40 +232,171 @@ router.get('/users/:userId/subscriptions', async (req, res) => {
     }
 });
 
+// Helper seguro para convertir fechas de entrada (YYYY-MM-DD o ISO) a formato MySQL DATETIME
+const parseDateInput = (input, isEndOfDay = false) => {
+    if (!input) return null;
+    const str = String(input).trim();
+    if (/^\d{4}-\d{2}-\d{2}$/.test(str)) {
+        const [y, m, d] = str.split('-').map(Number);
+        return isEndOfDay
+            ? new Date(Date.UTC(y, m - 1, d, 23, 59, 59))
+            : new Date(Date.UTC(y, m - 1, d, 0, 0, 0));
+    }
+    const parsed = new Date(str);
+    return isNaN(parsed.getTime()) ? null : parsed;
+};
+
+const formatMysqlDateTime = (date) => {
+    if (!date || isNaN(date.getTime())) return null;
+    return date.toISOString().slice(0, 19).replace('T', ' ');
+};
+
+const buildManualPlanLimits = (plan, { periodicity, price, planDays, startDate, expiresAt, status = 'active' }) => {
+    const baseLimits = typeof plan.limits_config === 'string'
+        ? JSON.parse(plan.limits_config)
+        : (plan.limits_config || {});
+    const isFreePlan = ['starter', 'free'].includes(String(plan.slug || '').toLowerCase());
+    const isAnnual = !isFreePlan && (
+        String(periodicity || '').toLowerCase() === 'anual' ||
+        Number(planDays || 0) >= 300 ||
+        String(plan.slug || '').toLowerCase().includes('anual')
+    );
+    const finalPeriodicity = isFreePlan ? 'Gratuito' : (isAnnual ? 'Anual' : 'Mensual');
+    const annualOverrides = (isAnnual && baseLimits.annual) ? baseLimits.annual : {};
+    const displayName = isFreePlan ? plan.name : `${plan.name} (${finalPeriodicity})`;
+
+    const newPlanLimits = {
+        ...baseLimits,
+        ...annualOverrides,
+        planName: plan.slug,
+        planSlug: plan.slug,
+        planDisplayName: displayName,
+        periodicity: finalPeriodicity,
+        price: Number(price || 0),
+        planDays: planDays || (isFreePlan ? 0 : (isAnnual ? 365 : 30)),
+    };
+
+    if (startDate) newPlanLimits.startDate = startDate.toISOString();
+    if (expiresAt) newPlanLimits.renewalDate = expiresAt.toISOString();
+
+    if (!isFreePlan) {
+        newPlanLimits.subscriptionDetails = {
+            planName: displayName,
+            planSlug: plan.slug,
+            periodicity: finalPeriodicity,
+            price: Number(price || 0),
+            planDays: planDays || (isAnnual ? 365 : 30),
+            startDate: startDate ? startDate.toISOString() : new Date().toISOString(),
+            renewalDate: expiresAt ? expiresAt.toISOString() : '',
+            status
+        };
+    }
+
+    return { newPlanLimits, isFreePlan, isAnnual, finalPeriodicity, displayName };
+};
+
 router.post('/users/:userId/subscriptions', async (req, res) => {
     const { userId } = req.params;
-    const { planId, status } = req.body;
+    const {
+        planId,
+        status,
+        periodicity,
+        price,
+        startDate,
+        expiresAt,
+        paymentMethod,
+        recordPayment
+    } = req.body;
     try {
         // 1. Obtener la información del plan por ID o por Slug
-        const [plans] = await pool.query('SELECT slug, name, limits_config FROM plans WHERE id = ? OR slug = ?', [planId, planId]);
+        const [plans] = await pool.query(
+            'SELECT id, slug, name, price_monthly, price_annual, currency, limits_config FROM plans WHERE id = ? OR slug = ?',
+            [planId, planId]
+        );
         if (plans.length === 0) return res.status(404).json({ error: 'Plan no encontrado' });
         const plan = plans[0];
         const planSlug = plan.slug;
-        const limitsConfig = typeof plan.limits_config === 'string' ? JSON.parse(plan.limits_config) : plan.limits_config;
+        const isFreePlan = ['starter', 'free'].includes(String(planSlug || '').toLowerCase());
+        const isAnnual = !isFreePlan && (
+            String(periodicity || '').toLowerCase() === 'anual' ||
+            String(planSlug || '').toLowerCase().includes('anual')
+        );
+        const finalPeriodicity = isFreePlan ? null : (isAnnual ? 'Anual' : 'Mensual');
+
+        // Calcular fechas y duración
+        const startObj = parseDateInput(startDate, false) || new Date();
+        let expiresObj = null;
+        let planDays = 0;
+
+        if (!isFreePlan) {
+            expiresObj = parseDateInput(expiresAt, true);
+            if (!expiresObj) {
+                expiresObj = new Date(startObj.getTime() + (isAnnual ? 365 : 30) * 86400000);
+            }
+            if (expiresObj <= startObj) {
+                return res.status(400).json({ error: 'La fecha de vencimiento debe ser posterior a la fecha de inicio.' });
+            }
+            planDays = Math.max(1, Math.round((expiresObj.getTime() - startObj.getTime()) / 86400000));
+        }
+
+        const defaultPrice = isFreePlan
+            ? 0
+            : (isAnnual ? Number(plan.price_annual || plan.price_monthly || 0) : Number(plan.price_monthly || 0));
+        const finalPrice = (price !== undefined && price !== null && price !== '' && !isNaN(Number(price)))
+            ? Number(price)
+            : defaultPrice;
+
+        const { newPlanLimits, displayName } = buildManualPlanLimits(plan, {
+            periodicity: finalPeriodicity,
+            price: finalPrice,
+            planDays,
+            startDate: startObj,
+            expiresAt: expiresObj,
+            status: status || 'active'
+        });
+
+        const cleanMethod = (paymentMethod || 'Manual').trim();
+        const methodTag = cleanMethod.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 12) || 'DIRECTO';
+        const manualRef = isFreePlan ? null : `MANUAL-${methodTag}-${Date.now().toString().slice(-6)}`;
+
+        const trackingParameters = {
+            source: 'manual',
+            paymentMethod: cleanMethod,
+            assignedBy: req.user?.id || null,
+            assignedAt: new Date().toISOString()
+        };
 
         // 2. Desactivar suscripciones activas anteriores para evitar conflictos de estado
         await pool.query(
-            "UPDATE user_subscriptions SET status = 'replaced' WHERE user_id = ? AND status = 'active'",
+            "UPDATE user_subscriptions SET status = 'replaced' WHERE user_id = ? AND status IN ('active', 'pending_cancellation')",
             [userId]
         );
 
-        // 3. Crear la nueva suscripción activa
+        // 3. Crear la nueva suscripción activa con todos los detalles
         const [result] = await pool.query(
-            'INSERT INTO user_subscriptions (user_id, plan_slug, status, created_at) VALUES (?, ?, ?, NOW())',
-            [userId, planSlug, status || 'active']
+            `INSERT INTO user_subscriptions 
+                (user_id, plan_slug, plan_name, periodicity, price, plan_days, start_date, renewal_date, expires_at, status, hotmart_purchase_id, tracking_parameters, created_at) 
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
+            [
+                userId,
+                planSlug,
+                displayName,
+                finalPeriodicity,
+                finalPrice,
+                planDays || null,
+                formatMysqlDateTime(startObj),
+                formatMysqlDateTime(expiresObj),
+                formatMysqlDateTime(expiresObj),
+                status || 'active',
+                manualRef,
+                JSON.stringify(trackingParameters)
+            ]
         );
 
-        // 4. Actualizar los límites del usuario inmediatamente
-        const newPlanLimits = {
-            planName: planSlug,
-            planSlug: planSlug,
-            planDisplayName: plan.name,
-            ...limitsConfig
-        };
-        
+        // 4. Actualizar los límites y estado del usuario inmediatamente
         await pool.query(
-            'UPDATE users SET plan_limits = ? WHERE id = ?',
-            [JSON.stringify(newPlanLimits), userId]
+            'UPDATE users SET plan_limits = ?, subscription_status = ? WHERE id = ?',
+            [JSON.stringify(newPlanLimits), isFreePlan ? 'free' : (status || 'active'), userId]
         );
 
         // 5. Sincronizar el plan_slug en los proyectos del usuario para desbloquearlos de inmediato
@@ -274,21 +405,39 @@ router.post('/users/:userId/subscriptions', async (req, res) => {
             [planSlug, userId]
         );
 
-        // 6. Limpieza total de caché de límites (claves como string y número)
+        // 6. Registrar ingreso manual en historial financiero si el admin lo solicitó
+        if (recordPayment && !isFreePlan && finalPrice > 0) {
+            const paymentMethodLabel = `Manual - ${cleanMethod}`;
+            await pool.query(
+                `INSERT INTO user_payments (user_id, transaction_id, amount, currency, status, payment_method, created_at)
+                 VALUES (?, ?, ?, ?, 'approved', ?, NOW())`,
+                [userId, manualRef, finalPrice, plan.currency || 'USD', paymentMethodLabel]
+            );
+        }
+
+        // 7. Limpieza total de caché de límites (claves como string y número)
         clearLimitsCache(userId);
         clearLimitsCache(String(userId));
         clearLimitsCache(Number(userId));
 
-        // 7. Obtener la fila insertada para devolverla
+        // 8. Obtener la fila insertada para devolverla
         const [newSub] = await pool.query(`
             SELECT 
                 us.id, 
                 us.user_id as userId, 
                 us.plan_slug as planSlug, 
+                COALESCE(us.plan_name, p.name) as planName,
+                us.periodicity,
+                us.price,
+                us.plan_days as planDays,
+                us.start_date as startDate,
+                us.renewal_date as renewalDate,
+                us.expires_at as expiresAt,
                 us.status, 
+                us.hotmart_purchase_id as hotmartPurchaseId,
+                us.tracking_parameters as trackingParameters,
                 us.created_at as createdAt, 
-                us.expires_at as nextBillingAt, 
-                p.name as planName,
+                COALESCE(us.renewal_date, us.expires_at) as nextBillingAt, 
                 p.id as planId
             FROM user_subscriptions us
             LEFT JOIN plans p ON us.plan_slug = p.slug
@@ -297,7 +446,16 @@ router.post('/users/:userId/subscriptions', async (req, res) => {
 
         // Logging
         const [admin] = await pool.query('SELECT name FROM users WHERE id = ?', [req.user.id]);
-        await logSystemActivity(req.user.id, admin[0]?.name, 'ADMIN_ASSIGN_PLAN', 'subscription', result.insertId, { userId, planSlug });
+        await logSystemActivity(req.user.id, admin[0]?.name, 'ADMIN_ASSIGN_PLAN', 'subscription', result.insertId, {
+            userId,
+            planSlug,
+            periodicity: finalPeriodicity,
+            price: finalPrice,
+            startDate: formatMysqlDateTime(startObj),
+            expiresAt: formatMysqlDateTime(expiresObj),
+            paymentMethod: cleanMethod,
+            recordPayment: Boolean(recordPayment)
+        });
 
         res.json(newSub[0]);
     } catch (e) {
@@ -308,57 +466,132 @@ router.post('/users/:userId/subscriptions', async (req, res) => {
 
 router.put('/subscriptions/:id', async (req, res) => {
     const { id } = req.params;
-    const { status } = req.body;
+    const { status, periodicity, price, startDate, expiresAt, paymentMethod } = req.body;
     try {
-        await pool.query('UPDATE user_subscriptions SET status = ? WHERE id = ?', [status, id]);
+        const [subs] = await pool.query('SELECT * FROM user_subscriptions WHERE id = ?', [id]);
+        if (subs.length === 0) return res.status(404).json({ error: 'Suscripción no encontrada' });
+
+        const currentSub = subs[0];
+        const userId = currentSub.user_id;
+        const planSlug = currentSub.plan_slug;
+        const finalStatus = status || currentSub.status || 'active';
+
+        // Resolver datos actualizados de periodicidad, precio y fechas
+        const isFreePlan = ['starter', 'free'].includes(String(planSlug || '').toLowerCase());
+        const resolvedPeriodicity = periodicity !== undefined
+            ? periodicity
+            : (currentSub.periodicity || (String(planSlug).toLowerCase().includes('anual') ? 'Anual' : 'Mensual'));
+        const isAnnual = !isFreePlan && String(resolvedPeriodicity || '').toLowerCase() === 'anual';
+
+        const startObj = startDate !== undefined
+            ? (parseDateInput(startDate, false) || new Date(currentSub.start_date || currentSub.created_at))
+            : (currentSub.start_date ? new Date(currentSub.start_date) : new Date(currentSub.created_at));
+
+        let expiresObj = expiresAt !== undefined
+            ? parseDateInput(expiresAt, true)
+            : (currentSub.expires_at ? new Date(currentSub.expires_at) : (currentSub.renewal_date ? new Date(currentSub.renewal_date) : null));
+
+        if (!isFreePlan && !expiresObj && periodicity !== undefined) {
+            expiresObj = new Date(startObj.getTime() + (isAnnual ? 365 : 30) * 86400000);
+        }
+
+        if (!isFreePlan && expiresObj && expiresObj <= startObj) {
+            return res.status(400).json({ error: 'La fecha de vencimiento debe ser posterior a la fecha de inicio.' });
+        }
+
+        const planDays = (!isFreePlan && expiresObj)
+            ? Math.max(1, Math.round((expiresObj.getTime() - startObj.getTime()) / 86400000))
+            : (currentSub.plan_days || (isAnnual ? 365 : 30));
+
+        const resolvedPrice = (price !== undefined && price !== null && price !== '' && !isNaN(Number(price)))
+            ? Number(price)
+            : (currentSub.price !== null && currentSub.price !== undefined ? Number(currentSub.price) : 0);
+
+        let existingTracking = {};
+        if (currentSub.tracking_parameters) {
+            try {
+                existingTracking = typeof currentSub.tracking_parameters === 'string'
+                    ? JSON.parse(currentSub.tracking_parameters)
+                    : currentSub.tracking_parameters;
+            } catch {}
+        }
+        if (paymentMethod) {
+            existingTracking = { ...existingTracking, paymentMethod: String(paymentMethod).trim() };
+        }
+
+        // Buscar definición del plan para regenerar nombre y límites
+        const [plans] = await pool.query('SELECT id, slug, name, limits_config FROM plans WHERE slug = ?', [planSlug]);
+        const plan = plans[0] || { slug: planSlug, name: planSlug, limits_config: DEFAULT_LIMITS };
+
+        const { newPlanLimits, displayName } = buildManualPlanLimits(plan, {
+            periodicity: resolvedPeriodicity,
+            price: resolvedPrice,
+            planDays,
+            startDate: startObj,
+            expiresAt: expiresObj,
+            status: finalStatus
+        });
+
+        await pool.query(
+            `UPDATE user_subscriptions 
+             SET status = ?, 
+                 plan_name = ?, 
+                 periodicity = ?, 
+                 price = ?, 
+                 plan_days = ?, 
+                 start_date = ?, 
+                 renewal_date = ?, 
+                 expires_at = ?, 
+                 tracking_parameters = ?
+             WHERE id = ?`,
+            [
+                finalStatus,
+                displayName,
+                isFreePlan ? null : resolvedPeriodicity,
+                resolvedPrice,
+                isFreePlan ? null : planDays,
+                formatMysqlDateTime(startObj),
+                formatMysqlDateTime(expiresObj),
+                formatMysqlDateTime(expiresObj),
+                JSON.stringify(existingTracking),
+                id
+            ]
+        );
 
         // Coordinar y sincronizar con la tabla de users y projects
-        const [subs] = await pool.query('SELECT user_id, plan_slug FROM user_subscriptions WHERE id = ?', [id]);
-        if (subs.length > 0) {
-            const userId = subs[0].user_id;
-            const planSlug = subs[0].plan_slug;
-
-            if (status === 'active') {
-                // Al activar, actualizamos el campo plan_limits del usuario con los límites del plan correspondiente
-                const [plans] = await pool.query('SELECT name, limits_config FROM plans WHERE slug = ?', [planSlug]);
-                if (plans.length > 0) {
-                    const plan = plans[0];
-                    const limitsConfig = typeof plan.limits_config === 'string' ? JSON.parse(plan.limits_config) : plan.limits_config;
-                    const newPlanLimits = {
-                        planName: planSlug,
-                        planSlug: planSlug,
-                        planDisplayName: plan.name,
-                        ...limitsConfig
-                    };
-                    await pool.query(
-                        'UPDATE users SET plan_limits = ? WHERE id = ?',
-                        [JSON.stringify(newPlanLimits), userId]
-                    );
-                    await pool.query(
-                        'UPDATE projects SET plan_slug = ? WHERE user_id = ?',
-                        [planSlug, userId]
-                    );
-                }
-            } else if (status === 'inactive' || status === 'canceled') {
-                // Al desactivar, restauramos los límites al plan starter por defecto
-                await pool.query(
-                    'UPDATE users SET plan_limits = ? WHERE id = ?',
-                    [JSON.stringify(DEFAULT_LIMITS), userId]
-                );
-                await pool.query(
-                    'UPDATE projects SET plan_slug = "starter" WHERE user_id = ?',
-                    [userId]
-                );
-            }
-
-            // Limpiamos la caché inmediatamente para actualizar en tiempo real
-            clearLimitsCache(userId);
-            clearLimitsCache(String(userId));
-            clearLimitsCache(Number(userId));
+        if (finalStatus === 'active') {
+            await pool.query(
+                'UPDATE users SET plan_limits = ?, subscription_status = ? WHERE id = ?',
+                [JSON.stringify(newPlanLimits), isFreePlan ? 'free' : 'active', userId]
+            );
+            await pool.query(
+                'UPDATE projects SET plan_slug = ? WHERE user_id = ?',
+                [planSlug, userId]
+            );
+        } else if (finalStatus === 'inactive' || finalStatus === 'canceled') {
+            // Al desactivar, restauramos los límites al plan starter oficial de la DB
+            const [starterPlans] = await pool.query("SELECT limits_config FROM plans WHERE slug = 'starter' LIMIT 1");
+            const starterLimits = starterPlans.length > 0
+                ? (typeof starterPlans[0].limits_config === 'string' ? JSON.parse(starterPlans[0].limits_config) : starterPlans[0].limits_config)
+                : DEFAULT_LIMITS;
+            await pool.query(
+                "UPDATE users SET plan_limits = ?, subscription_status = 'canceled' WHERE id = ?",
+                [JSON.stringify({ ...starterLimits, planName: 'starter', planSlug: 'starter' }), userId]
+            );
+            await pool.query(
+                'UPDATE projects SET plan_slug = "starter" WHERE user_id = ?',
+                [userId]
+            );
         }
+
+        // Limpiamos la caché inmediatamente para actualizar en tiempo real
+        clearLimitsCache(userId);
+        clearLimitsCache(String(userId));
+        clearLimitsCache(Number(userId));
 
         res.json({ success: true });
     } catch (e) {
+        console.error("Error in PUT /subscriptions/:id:", e);
         res.status(500).json({ error: e.message });
     }
 });
@@ -637,8 +870,16 @@ router.get('/all-subscriptions', async (req, res) => {
                 us.id, 
                 us.user_id as userId, 
                 us.plan_slug as planSlug, 
+                us.plan_name as planName,
+                us.periodicity,
+                us.price,
+                us.plan_days as planDays,
+                us.start_date as startDate,
+                us.renewal_date as renewalDate,
+                us.expires_at as expiresAt,
                 us.status, 
                 us.hotmart_purchase_id as hotmartPurchaseId, 
+                us.tracking_parameters as trackingParameters,
                 us.created_at as createdAt, 
                 u.name as userName, 
                 u.email as userEmail 
