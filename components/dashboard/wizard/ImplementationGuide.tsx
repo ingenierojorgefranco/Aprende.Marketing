@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import confetti from "canvas-confetti";
 import { motion, AnimatePresence } from "motion/react";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -26,6 +27,7 @@ import { EstrategiaComercialDrawer, CommercialOptionId } from "./EstrategiaComer
 import { ImplementationGuideContext } from './ImplementationGuideContext';
 import { 
   CheckCircle, 
+  ChevronLeft,
   ChevronRight, 
   ChevronDown,
   Globe, 
@@ -138,6 +140,7 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
   const [selectedCommercialOption, setSelectedCommercialOption] = useState<CommercialOptionId | null>(null);
   const [openGuideStages, setOpenGuideStages] = useState<number[]>([1]);
   const [mobileStepsDrawerOpen, setMobileStepsDrawerOpen] = useState<boolean>(false);
+  const mobileStepRefs = useRef<Record<number, HTMLButtonElement | null>>({});
 
   const planRawName = (user?.planLimits?.planName || user?.plan || 'starter').toLowerCase();
   const isFreeUser = !isAdmin && (planRawName === 'starter' || planRawName === 'free' || planRawName === 'gratis' || planRawName === 'gratuito' || planRawName === 'basico' || planRawName === 'básico' || !planRawName);
@@ -145,6 +148,12 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
   useEffect(() => {
     const activeStageNum = stepsList.find(s => s.id === activeStep)?.stage || 1;
     setOpenGuideStages(prev => Array.from(new Set([...prev, activeStageNum])));
+
+    // Centrar suavemente el paso activo en la tira horizontal móvil
+    const activePill = mobileStepRefs.current[activeStep];
+    if (activePill) {
+      activePill.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    }
   }, [activeStep]);
 
   const toggleGuideStage = (stageNum: number) => {
@@ -180,13 +189,17 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
     const newCompleted = [...completedSteps, stepId];
     setCompletedSteps(newCompleted);
     
-    if (stepId < 10) {
+    if (stepId < stepsList.length) {
       const nextStep = stepId + 1;
       setActiveStep(nextStep);
       const nextSectionId = stepToSectionMap[nextStep] || 'summary';
       setSearchParams({ section: nextSectionId });
       if (onStrategySectionChange) {
         onStrategySectionChange(nextSectionId);
+      }
+      if (typeof window !== 'undefined') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        document.getElementById('dashboard-scroll-container')?.scrollTo({ top: 0, behavior: 'smooth' });
       }
     }
     
@@ -493,7 +506,7 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
     <div className="w-full text-slate-200 font-sans min-h-screen bg-[#060913] -mt-2 sm:-mt-4 -mx-1 sm:-mx-3">
       
       {/* Layout Grid */}
-      <div className="w-full max-w-[1760px] mx-auto px-2 sm:px-3 md:px-4 pt-1 pb-6">
+      <div className="w-full max-w-[1760px] mx-auto px-2 sm:px-3 md:px-4 pt-1 pb-24 lg:pb-6">
         <div className="grid grid-cols-1 lg:grid-cols-[270px_minmax(0,1fr)] xl:grid-cols-[310px_minmax(0,1fr)] 2xl:grid-cols-[350px_minmax(0,1fr)] gap-4 lg:gap-5 xl:gap-6 items-start">
           
           {/* COLUMNA IZQUIERDA: Menús Laterales (Desktop) */}
@@ -512,30 +525,61 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
           {/* COLUMNA DERECHA: Detalle del Paso Activo */}
           <main className="space-y-6">
 
-            {/* BARRA SELECTORA DE PASO EN MÓVIL (Sticky / Prominente) */}
-            <div className="lg:hidden sticky top-0 z-30 bg-[#0B1120]/95 backdrop-blur-md border border-slate-800 rounded-2xl p-3.5 shadow-xl flex items-center justify-between gap-3">
-              <div className="flex items-center gap-3 min-w-0">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#FF5A1F] to-[#E04810] flex items-center justify-center text-white font-black text-sm shrink-0 shadow-md shadow-[#FF5A1F]/30">
-                  {activeStep}
-                </div>
-                <div className="min-w-0 text-left">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">
-                    {stepsList.find(s => s.id === activeStep)?.stage === 1 ? 'Etapa 1: Activa tu sistema' : 'Etapa 2: Tu sistema de ventas'} • Paso {activeStep} de {stepsList.length}
-                  </span>
-                  <h3 className="text-sm font-extrabold text-white truncate">
-                    {stepsList.find(s => s.id === activeStep)?.title || `Paso ${activeStep}`}
-                  </h3>
-                </div>
+            {/* TIRA HORIZONTAL DESLIZABLE DE PASOS EN MÓVIL (Reemplaza el botón superior anterior) */}
+            <div className="lg:hidden bg-[#0B1120]/95 border border-slate-800/90 rounded-2xl p-2.5 shadow-xl">
+              <div className="flex items-center justify-between gap-2 px-1 pb-2">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 truncate">
+                  {stepsList.find(s => s.id === activeStep)?.stage === 1 ? 'Etapa 1: Activa tu sistema' : 'Etapa 2: Tu sistema de ventas'} • Paso {activeStep} de {stepsList.length}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setMobileStepsDrawerOpen(true)}
+                  className="text-[10px] font-extrabold uppercase tracking-wider text-[#FF5A1F] hover:text-[#ff7847] flex items-center gap-1 shrink-0 cursor-pointer"
+                >
+                  <List className="w-3.5 h-3.5" />
+                  <span>Ver todos</span>
+                </button>
               </div>
 
-              <button
-                type="button"
-                onClick={() => setMobileStepsDrawerOpen(true)}
-                className="px-3.5 py-2.5 rounded-xl bg-[#FF5A1F] hover:bg-[#e04e17] text-white text-xs font-black uppercase tracking-wider flex items-center gap-1.5 shrink-0 shadow-lg shadow-[#FF5A1F]/25 active:scale-95 transition-all cursor-pointer"
-              >
-                <Menu className="w-4 h-4" />
-                <span>Ver pasos</span>
-              </button>
+              <div className="relative">
+                <div className="flex items-center gap-2 overflow-x-auto pb-0.5 pr-6 scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                  {stepsList.map((step) => {
+                    const isActive = activeStep === step.id;
+                    const isCompleted = completedSteps.includes(step.id);
+                    const cleanTitle = step.title.replace(/^\d+\.\s*/, '');
+
+                    return (
+                      <button
+                        key={step.id}
+                        ref={(el) => { mobileStepRefs.current[step.id] = el; }}
+                        type="button"
+                        onClick={() => handleStepClick(step.id)}
+                        className={`shrink-0 flex items-center gap-2 pl-1.5 pr-3 py-1.5 rounded-xl border text-xs transition-all active:scale-95 cursor-pointer ${
+                          isActive
+                            ? 'bg-[#FF5A1F] border-[#FF5A1F] text-white font-bold shadow-md shadow-[#FF5A1F]/25'
+                            : isCompleted
+                              ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300 font-semibold hover:border-emerald-400/50'
+                              : 'bg-slate-900/90 border-slate-800 text-slate-300 font-medium hover:border-slate-700 hover:text-white'
+                        }`}
+                      >
+                        <span
+                          className={`w-6 h-6 rounded-lg flex items-center justify-center text-[11px] font-black shrink-0 ${
+                            isActive
+                              ? 'bg-white/20 text-white'
+                              : isCompleted
+                                ? 'bg-emerald-500/20 text-emerald-400'
+                                : 'bg-slate-800 text-slate-300'
+                          }`}
+                        >
+                          {isCompleted ? <Check className="w-3.5 h-3.5 stroke-[3]" /> : step.id}
+                        </span>
+                        <span className="whitespace-nowrap">{cleanTitle}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+                <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-[#0B1120] to-transparent" />
+              </div>
             </div>
 
             {/* DRAWER MÓVIL DE PASOS (Modal emergente completo) */}
@@ -1806,6 +1850,51 @@ export const ImplementationGuide: React.FC<ImplementationGuideProps> = ({
         projectUrl={projectUrl}
         fullProject={fullProject}
       />
+
+      {/* BARRA INFERIOR FIJA EN MÓVIL (Anterior | Pasos X/15 | Siguiente) */}
+      {typeof document !== 'undefined' &&
+        !mobileStepsDrawerOpen &&
+        !isAnalysisDrawerOpen &&
+        !isProjectionDrawerOpen &&
+        !isCommercialDrawerOpen &&
+        createPortal(
+          <div className="lg:hidden fixed bottom-0 inset-x-0 z-[35] bg-[#0B1120]/95 backdrop-blur-xl border-t border-slate-800/90 shadow-[0_-8px_30px_rgba(0,0,0,0.65)] px-3 py-2.5 pb-[max(0.625rem,env(safe-area-inset-bottom))]">
+            <div className="max-w-lg mx-auto flex items-center justify-between gap-2">
+              <button
+                type="button"
+                onClick={() => activeStep > 1 && handleStepClick(activeStep - 1)}
+                disabled={activeStep <= 1}
+                className="flex items-center justify-center gap-1 px-3 py-2 rounded-xl bg-slate-900/90 border border-slate-800 text-slate-200 hover:text-white hover:border-slate-700 text-xs font-bold transition-all active:scale-95 disabled:opacity-35 disabled:pointer-events-none cursor-pointer shrink-0"
+                aria-label="Paso anterior"
+              >
+                <ChevronLeft className="w-4 h-4 shrink-0" />
+                <span>Anterior</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setMobileStepsDrawerOpen(true)}
+                className="flex-1 max-w-[195px] flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-[#FF5A1F] hover:bg-[#e04e17] text-white text-xs font-black uppercase tracking-wide shadow-lg shadow-[#FF5A1F]/25 active:scale-95 transition-all cursor-pointer"
+                aria-label="Abrir lista completa de pasos"
+              >
+                <Menu className="w-4 h-4 shrink-0" />
+                <span className="truncate">Pasos ({activeStep}/{stepsList.length})</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => activeStep < stepsList.length && handleStepClick(activeStep + 1)}
+                disabled={activeStep >= stepsList.length}
+                className="flex items-center justify-center gap-1 px-3 py-2 rounded-xl bg-slate-900/90 border border-[#FF5A1F]/40 text-white hover:bg-[#FF5A1F]/15 hover:border-[#FF5A1F] text-xs font-bold transition-all active:scale-95 disabled:opacity-35 disabled:border-slate-800 disabled:pointer-events-none cursor-pointer shrink-0"
+                aria-label="Siguiente paso"
+              >
+                <span>Siguiente</span>
+                <ChevronRight className="w-4 h-4 shrink-0 text-[#FF5A1F]" />
+              </button>
+            </div>
+          </div>,
+          document.body
+        )}
 
     </div>
     </ImplementationGuideContext.Provider>
