@@ -92,44 +92,67 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ user, onClose, onUp
         }
     };
 
+    const loadUsageData = async () => {
+        setLoadingStats(true);
+        setLoadingResources(true);
+        try {
+            const [summary, projectsRes, pagesRes, articlesRes, emailsRes, whatsappRes, hooksRes] = await Promise.all([
+                api.getAnalyticsSummary().catch(() => null),
+                api.getUserResources('projects').catch(() => []),
+                api.getUserResources('pages').catch(() => []),
+                api.getUserResources('articles').catch(() => []),
+                api.getUserResources('emails').catch(() => []),
+                api.getUserResources('whatsapp').catch(() => []),
+                api.getUserResources('hooks').catch(() => [])
+            ]);
+
+            const toList = (res: any) => Array.isArray(res) ? res : (Array.isArray(res?.data) ? res.data : []);
+            const projects = toList(projectsRes);
+            const pages = toList(pagesRes);
+            const articles = toList(articlesRes);
+            const emails = toList(emailsRes);
+            const whatsapp = toList(whatsappRes);
+            const hooks = toList(hooksRes);
+
+            setResources({
+                projects,
+                pages,
+                articles,
+                hooks,
+                emails,
+                whatsapp
+            });
+
+            setUsageStats({
+                projects: typeof summary?.totalProjects === 'number' ? summary.totalProjects : projects.length,
+                landings: typeof summary?.totalPages === 'number' ? summary.totalPages : pages.length,
+                articles: typeof summary?.totalArticles === 'number' ? summary.totalArticles : articles.length,
+                hooks: typeof summary?.totalHooks === 'number' ? summary.totalHooks : hooks.length
+            });
+        } catch (e) {
+            console.error("Error cargando datos de uso", e);
+        } finally {
+            setLoadingStats(false);
+            setLoadingResources(false);
+        }
+    };
+
     useEffect(() => {
         if (activeTab === 'payments') {
             loadBillingHistory();
+        } else if (activeTab === 'usage') {
+            loadUsageData();
         }
     }, [activeTab]);
 
     ////////// Lógica de carga de datos bajo demanda según pestaña - 27/05/2025 13:10 //////////
-    const handleTabChange = async (tab: 'profile' | 'plan' | 'usage' | 'payments') => {
-        setActiveTab(tab);
-        if (tab === 'usage') {
-            setLoadingStats(true);
-            setLoadingResources(true);
-            try {
-                const [stats, projects, pages, articles, emails, whatsapp, hooks] = await Promise.all([
-                    api.getUserUsageStats(user.id),
-                    api.getUserResources('projects'),
-                    api.getUserResources('pages'),
-                    api.getUserResources('articles'),
-                    api.getUserResources('emails'),
-                    api.getUserResources('whatsapp'),
-                    api.getUserResources('hooks')
-                ]);
-                setUsageStats(stats);
-                setResources({
-                    projects,
-                    pages,
-                    articles,
-                    hooks,
-                    emails,
-                    whatsapp
-                });
-            } catch (e) {
-                console.error("Error cargando datos de uso", e);
-            } finally {
-                setLoadingStats(false);
-                setLoadingResources(false);
-            }
+    const handleTabChange = (tab: 'profile' | 'plan' | 'usage' | 'payments') => {
+        if (tab === activeTab) {
+            if (tab === 'usage') loadUsageData();
+            if (tab === 'payments') loadBillingHistory();
+            return;
         }
+        setActiveTab(tab);
     };
     ////////// Fin de actualización - 27/05/2025 13:10 /////////
 
@@ -426,7 +449,7 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ user, onClose, onUp
                                                 >
                                                     <div className="flex items-center gap-3">
                                                         <Zap className="w-5 h-5 text-orange-400" />
-                                                        <span className="text-sm font-bold text-white">Ganchos Magnéticos ({Math.max(0, (user.planLimits?.maxHooks || 10) - resources.hooks.length)} / {user.planLimits?.maxHooks || 10} reels disponibles)</span>
+                                                        <span className="text-sm font-bold text-white">Ganchos Magnéticos ({Math.max(0, (user.planLimits?.maxHooks || 10) - (usageStats?.hooks ?? resources.hooks.length))} / {user.planLimits?.maxHooks || 10} reels disponibles este mes)</span>
                                                     </div>
                                                     {expandedResource === 'hooks' ? <ChevronUp className="w-4 h-4 text-gray-500" /> : <ChevronDown className="w-4 h-4 text-gray-500" />}
                                                 </button>
@@ -481,7 +504,7 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ user, onClose, onUp
                                                 >
                                                     <div className="flex items-center gap-3">
                                                         <BookOpen className="w-5 h-5 text-purple-400" />
-                                                        <span className="text-sm font-bold text-white">Artículos SEO (Bolsa Global: {resources.articles.length} / {user.planLimits?.maxArticles || 2})</span>
+                                                        <span className="text-sm font-bold text-white">Artículos SEO ({usageStats?.articles ?? resources.articles.length} / {user.planLimits?.maxArticles || 2} usados este mes)</span>
                                                     </div>
                                                     {expandedResource === 'articles' ? <ChevronUp className="w-4 h-4 text-gray-500" /> : <ChevronDown className="w-4 h-4 text-gray-500" />}
                                                 </button>

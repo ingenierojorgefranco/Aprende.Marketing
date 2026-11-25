@@ -423,7 +423,8 @@ export const DashboardLayout = ({
   };
 
   const currentPlan = effectiveUser.planLimits?.planName || 'starter';
-  const isFreePlan = ['starter', 'gratuito', 'free', 'gratis', 'basico', 'básico', 'plan free'].includes(currentPlan.toLowerCase());
+  const isFreePlan = ['starter', 'gratuito', 'free', 'gratis', 'basico', 'básico', 'plan free', 'plan starter'].includes(currentPlan.toLowerCase());
+  const showUpgradeOption = isFreePlan && effectiveUser.role !== 'admin';
 
   const handleHelpSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -685,16 +686,18 @@ export const DashboardLayout = ({
                                          <p className="text-xs font-bold text-white truncate">{effectiveUser.name}</p>
                                          <p className="text-[10px] text-[#FF5A1F] font-bold lowercase truncate max-w-[180px] block">{effectiveUser.email}</p>
                                      </div>
-                                     <button
-                                         onClick={() => {
-                                             setHeaderUserMenuOpen(false);
-                                             setShowUpgradeModal(true);
-                                         }}
-                                         className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-zinc-300 hover:text-white hover:bg-white/[0.08] transition-colors cursor-pointer group"
-                                     >
-                                         <Sparkles className="w-4 h-4 text-zinc-400 group-hover:text-amber-400 transition-colors shrink-0" />
-                                         <span>Actualizar a Pro</span>
-                                     </button>
+                                     {showUpgradeOption && (
+                                         <button
+                                             onClick={() => {
+                                                 setHeaderUserMenuOpen(false);
+                                                 setShowUpgradeModal(true);
+                                             }}
+                                             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-zinc-300 hover:text-white hover:bg-white/[0.08] transition-colors cursor-pointer group"
+                                         >
+                                             <Sparkles className="w-4 h-4 text-zinc-400 group-hover:text-amber-400 transition-colors shrink-0" />
+                                             <span>Actualizar a Pro</span>
+                                         </button>
+                                     )}
                                      <button
                                          onClick={() => {
                                              setHeaderUserMenuOpen(false);
@@ -742,7 +745,7 @@ export const DashboardLayout = ({
                      )}
 
                      {/* Botón ACTUALIZA A PRO (Optimizado y compacto en móviles) */}
-                     {!isLaunchRestricted && !(user.role !== 'admin' && projectCount === 0) && isFreePlan && (
+                     {!isLaunchRestricted && !(user.role !== 'admin' && projectCount === 0) && showUpgradeOption && (
                          <button 
                              onClick={() => setShowUpgradeModal(true)} 
                              className="relative overflow-hidden flex items-center justify-between gap-1.5 sm:gap-2.5 py-1.5 px-2.5 sm:px-3.5 rounded-xl bg-gradient-to-r from-amber-500/15 via-yellow-500/10 to-amber-600/15 border border-yellow-500/60 hover:border-yellow-400 text-yellow-300 transition-all duration-300 group cursor-pointer shadow-[0_0_15px_rgba(234,179,8,0.12)] hover:shadow-[0_0_22px_rgba(234,179,8,0.25)] active:scale-[0.98] whitespace-nowrap shrink-0"

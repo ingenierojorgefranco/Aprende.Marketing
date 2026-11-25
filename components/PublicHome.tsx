@@ -117,6 +117,12 @@ export const PublicHome: React.FC<PublicHomeProps> = ({ user, onLogout, onUpdate
     setIsMenuOpen(false);
   };
 
+  const currentUserPlan = String(user?.planLimits?.planName || user?.planSlug || 'starter').toLowerCase();
+  const showUpgradeOption =
+    !!user &&
+    user.role !== 'admin' &&
+    ['starter', 'gratuito', 'free', 'gratis', 'basico', 'básico', 'plan free', 'plan starter'].includes(currentUserPlan);
+
   return (
     <div className="min-h-screen bg-[#FFFFFF] text-[#0B0B0B] font-sans selection:bg-[#FF5A1F] selection:text-white overflow-x-hidden">
       
@@ -210,17 +216,19 @@ export const PublicHome: React.FC<PublicHomeProps> = ({ user, onLogout, onUpdate
                         <LayoutDashboard className="w-4 h-4 text-zinc-400 group-hover:text-[#FF5A1F] transition-colors shrink-0" />
                         <span>Ir al Panel</span>
                       </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setHeaderUserMenuOpen(false);
-                          setShowUpgradeModal(true);
-                        }}
-                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-zinc-300 hover:text-white hover:bg-white/[0.08] transition-colors cursor-pointer group"
-                      >
-                        <Sparkles className="w-4 h-4 text-zinc-400 group-hover:text-amber-400 transition-colors shrink-0" />
-                        <span>Actualizar a Pro</span>
-                      </button>
+                      {showUpgradeOption && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setHeaderUserMenuOpen(false);
+                            setShowUpgradeModal(true);
+                          }}
+                          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-zinc-300 hover:text-white hover:bg-white/[0.08] transition-colors cursor-pointer group"
+                        >
+                          <Sparkles className="w-4 h-4 text-zinc-400 group-hover:text-amber-400 transition-colors shrink-0" />
+                          <span>Actualizar a Pro</span>
+                        </button>
+                      )}
                       <button
                         type="button"
                         onClick={() => {

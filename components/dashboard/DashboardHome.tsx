@@ -253,8 +253,10 @@ export const DashboardHome: React.FC = () => {
       });
   }, [masterLibrary, projects, isRealAdmin]);
 
-  const planRawName = (user?.planLimits as any)?.planDisplayName || user?.planLimits?.planName || user?.planSlug || 'Gratuito';
-  const isFree = ['starter', 'gratuito', 'free', 'gratis', 'basico', 'básico', 'plan free', 'plan starter'].includes(planRawName.toLowerCase());
+  const subDetails = (user?.planLimits as any)?.subscriptionDetails;
+  const planRawName = subDetails?.planName || (user?.planLimits as any)?.planDisplayName || user?.planLimits?.planName || user?.planSlug || 'Gratuito';
+  const basePlanSlug = String(user?.planLimits?.planName || user?.planSlug || 'starter').toLowerCase();
+  const isFree = ['starter', 'gratuito', 'free', 'gratis', 'basico', 'básico', 'plan free', 'plan starter'].includes(basePlanSlug);
   const planName = isFree 
     ? 'Plan Gratuito' 
     : (planRawName.toLowerCase() === 'pro' 
@@ -262,10 +264,19 @@ export const DashboardHome: React.FC = () => {
         : (planRawName.toLowerCase().startsWith('plan') ? planRawName : `Plan ${planRawName}`));
   const maxProjects = user?.planLimits?.maxProjects || 1;
 
-  const startDate = user?.createdAt ? new Date(user.createdAt) : new Date("2026-09-20");
-  const nextRenewal = new Date(startDate);
-  nextRenewal.setDate(nextRenewal.getDate() + 30);
+  const periodicity: string = isFree
+    ? 'Mensual'
+    : (subDetails?.periodicity || (user?.planLimits as any)?.periodicity || (String(planRawName).toLowerCase().includes('anual') || basePlanSlug.includes('anual') ? 'Anual' : 'Mensual'));
+  const planDays: number = subDetails?.planDays || (user?.planLimits as any)?.planDays || (periodicity === 'Anual' ? 365 : 30);
+
+  const rawStart = subDetails?.startDate || (user?.planLimits as any)?.startDate || user?.createdAt;
+  const startDate = rawStart ? new Date(rawStart) : new Date();
+  const rawRenewal = subDetails?.renewalDate || (user?.planLimits as any)?.renewalDate;
+  const nextRenewal = rawRenewal
+    ? new Date(rawRenewal)
+    : new Date(startDate.getTime() + planDays * 24 * 60 * 60 * 1000);
   const formatDate = (date: Date) => {
+      if (isNaN(date.getTime())) return '—';
       return date.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
   };
   
@@ -320,8 +331,14 @@ export const DashboardHome: React.FC = () => {
                           <span className="text-[10px] sm:text-xs font-black text-[#FF5A1F] uppercase tracking-widest">
                               Tu Suscripción
                           </span>
-                          <span className="px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-wider bg-[#FF5A1F]/15 text-[#FF5A1F] border border-[#FF5A1F]/30">
-                              Plan Mensual
+                          <span className={`px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-wider border ${
+                              isFree
+                                ? 'bg-slate-700/40 text-slate-300 border-slate-600/40'
+                                : periodicity === 'Anual'
+                                  ? 'bg-amber-500/15 text-amber-300 border-amber-500/30'
+                                  : 'bg-[#FF5A1F]/15 text-[#FF5A1F] border-[#FF5A1F]/30'
+                          }`}>
+                              {isFree ? 'Plan Gratuito' : `Plan ${periodicity}`}
                           </span>
                       </div>
                       <span className="px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shadow-[0_0_12px_rgba(16,185,129,0.2)]">
@@ -334,7 +351,9 @@ export const DashboardHome: React.FC = () => {
                       <h3 className="text-2xl sm:text-3xl font-black text-white tracking-tight capitalize leading-none">
                           {planName}
                       </h3>
-                      <p className="text-xs text-gray-500 font-medium">Plan Premium Profesional</p>
+                      <p className="text-xs text-gray-500 font-medium">
+                          {isFree ? 'Plan Inicial Gratuito' : 'Plan Premium Profesional'}
+                      </p>
                   </div>
 
                   <div className="h-px bg-slate-800/80 my-4"></div>
@@ -360,9 +379,11 @@ export const DashboardHome: React.FC = () => {
                               <Clock className="w-4.5 h-4.5" />
                           </div>
                           <div className="min-w-0">
-                              <p className="text-[9px] font-extrabold uppercase text-gray-500 tracking-wider">Próxima Renovación</p>
+                              <p className="text-[9px] font-extrabold uppercase text-gray-500 tracking-wider">
+                                  {isFree ? 'Acceso' : 'Próxima Renovación'}
+                              </p>
                               <p className="text-xs sm:text-sm font-black text-emerald-400 truncate">
-                                  {formatDate(nextRenewal)}
+                                  {isFree ? 'Sin vencimiento' : formatDate(nextRenewal)}
                               </p>
                           </div>
                       </div>
@@ -373,9 +394,11 @@ export const DashboardHome: React.FC = () => {
                               <Sparkles className="w-4.5 h-4.5" />
                           </div>
                           <div className="min-w-0">
-                              <p className="text-[9px] font-extrabold uppercase text-gray-500 tracking-wider">Periodicidad (30 Días)</p>
+                              <p className="text-[9px] font-extrabold uppercase text-gray-500 tracking-wider">
+                                  {isFree ? 'Periodicidad' : `Periodicidad (${planDays} Días)`}
+                              </p>
                               <p className="text-xs sm:text-sm font-black text-white truncate">
-                                  {isFree ? 'Mensual (Gratis)' : 'Mensual ($79 USD)'}
+                                  {isFree ? 'Gratuito' : periodicity}
                               </p>
                           </div>
                       </div>
