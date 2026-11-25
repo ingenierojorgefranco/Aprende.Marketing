@@ -1468,4 +1468,136 @@ router.post('/activate-hotmart-account', async (req, res) => {
     }
 });
 
+// ======================================================
+//  HISTORIAL DE TRANSACCIONES DEL USUARIO AUTENTICADO
+//  (Combina user_subscriptions y user_payments sin exponer precios)
+// ======================================================
+router.get('/me/billing-history', authMiddleware, async (req, res) => {
+    try {
+        const userId = req.user.id;
+
+        const [subsRows] = await pool.query(
+            `SELECT 
+                us.id,
+                us.plan_slug as planSlug,
+                COALESCE(us.plan_name, p.name, us.plan_slug) as planName,
+                us.periodicity,
+                us.plan_days as planDays,
+                us.start_date as startDate,
+                us.renewal_date as renewalDate,
+                us.expires_at as expiresAt,
+                us.status,
+                us.hotmart_purchase_id as referenceId,
+                us.tracking_parameters as trackingParameters,
+                us.created_at as createdAt
+             FROM user_subscriptions us
+             LEFT JOIN plans p ON us.plan_slug = p.slug
+             WHERE us.user_id = ?
+             ORDER BY us.created_at DESC`,
+            [userId]
+        );
+
+        const [payRows] = await pool.query(
+            `SELECT 
+                id,
+                stripe_id as stripeId,
+                transaction_id as transactionId,
+                status,
+                payment_method as paymentMethod,
+                buyer_name as buyerName,
+                approval_code as approvalCode,
+                receipt_url as receiptUrl,
+                created_at as createdAt
+             FROM user_payments
+             WHERE user_id = ?
+             ORDER BY created_at DESC`,
+            [userId]
+        );
+
+        const matchedPaymentIds = new Set();
+        const history = [];
+
+        for (const sub of subsRows) {
+            let tracking = {};
+            if (sub.trackingParameters) {
+                try {
+                    tracking = typeof sub.trackingParameters === 'string'
+                        ? JSON.parse(sub.trackingParameters)
+                        : sub.trackingParameters;
+                } catch {}
+            }
+
+            const matchedPay = sub.referenceId
+                ? payRows.find(p => (p.transactionId && p.transactionId === sub.referenceId) || (p.stripeId && p.stripeId === sub.referenceId))
+                : null;
+            if (matchedPay) matchedPaymentIds.add(matchedPay.id);
+
+            const ref = sub.referenceId || matchedPay?.transactionId || matchedPay?.stripeId || `SUB-${sub.id}`;
+            const isManual = tracking?.source === 'manual' ||
+                String(ref).startsWith('MANUAL-') ||
+                String(matchedPay?.paymentMethod || '').toLowerCase().includes('manual');
+            const isFree = ['starter', 'free'].includes(String(sub.planSlug || '').toLowerCase());
+            const isAnnual = !isFree && (
+                String(sub.periodicity || '').toLowerCase() === 'anual' ||
+                Number(sub.planDays || 0) >= 300 ||
+                String(sub.planSlug || '').toLowerCase().includes('anual')
+            );
+
+            const methodLabel = isManual
+                ? (tracking?.paymentMethod || String(matchedPay?.paymentMethod || '').replace(/^Manual\s*-\s*/i, '') || 'Asignación administrativa')
+                : (matchedPay?.paymentMethod || 'Hotmart');
+
+            history.push({
+                id: `sub_${sub.id}`,
+                referenceId: ref,
+                planName: sub.planName || sub.planSlug,
+                planSlug: sub.planSlug,
+                periodicity: isFree ? 'Gratuito' : (sub.periodicity || (isAnnual ? 'Anual' : 'Mensual')),
+                planDays: sub.planDays || (isFree ? null : (isAnnual ? 365 : 30)),
+                status: sub.status || matchedPay?.status || 'active',
+                source: isManual ? 'manual' : 'hotmart',
+                paymentMethod: methodLabel,
+                startDate: sub.startDate || sub.createdAt,
+                renewalDate: sub.renewalDate || sub.expiresAt || null,
+                createdAt: sub.createdAt,
+                approvalCode: matchedPay?.approvalCode || null,
+                receiptUrl: matchedPay?.receiptUrl || null
+            });
+        }
+
+        // Incluir pagos independientes que no hayan coincidido con una suscripción
+        for (const pay of payRows) {
+            if (matchedPaymentIds.has(pay.id)) continue;
+            const ref = pay.transactionId || pay.stripeId || `PAY-${pay.id}`;
+            const isManual = String(ref).startsWith('MANUAL-') ||
+                String(pay.paymentMethod || '').toLowerCase().includes('manual');
+
+            history.push({
+                id: `pay_${pay.id}`,
+                referenceId: ref,
+                planName: 'Suscripción',
+                planSlug: 'pro',
+                periodicity: null,
+                planDays: null,
+                status: pay.status || 'approved',
+                source: isManual ? 'manual' : (String(pay.paymentMethod || '').toLowerCase().includes('stripe') ? 'stripe' : 'hotmart'),
+                paymentMethod: isManual
+                    ? (String(pay.paymentMethod || '').replace(/^Manual\s*-\s*/i, '') || 'Asignación administrativa')
+                    : (pay.paymentMethod || 'Hotmart'),
+                startDate: pay.createdAt,
+                renewalDate: null,
+                createdAt: pay.createdAt,
+                approvalCode: pay.approvalCode || null,
+                receiptUrl: pay.receiptUrl || null
+            });
+        }
+
+        history.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        res.json(history);
+    } catch (error) {
+        console.error('[Billing History Error]', error);
+        res.status(500).json({ error: 'Error al cargar el historial de transacciones' });
+    }
+});
+
 export { router };

@@ -1794,6 +1794,11 @@ export const api = {
         return payments;
     },
 
+    getMyBillingHistory: async (): Promise<any[]> => {
+        if (isMockMode) return Promise.resolve([]);
+        return await fetchWithFallback('/auth/me/billing-history', { headers: getAuthHeaders() });
+    },
+
     getUserSubscriptions: async (userId: string): Promise<any[]> => {
         if (isMockMode) return Promise.resolve([]);
         if (apiCache.userSubscriptions[userId]) return apiCache.userSubscriptions[userId];

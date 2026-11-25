@@ -80,6 +80,24 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ user, onClose, onUp
         ? Math.floor((new Date().getTime() - new Date(user.createdAt).getTime()) / (1000 * 3600 * 24))
         : 0;
 
+    const loadBillingHistory = async () => {
+        setLoadingPayments(true);
+        try {
+            const history = await api.getMyBillingHistory();
+            setPayments(Array.isArray(history) ? history : []);
+        } catch (e) {
+            console.error("Error cargando historial de transacciones", e);
+        } finally {
+            setLoadingPayments(false);
+        }
+    };
+
+    useEffect(() => {
+        if (activeTab === 'payments') {
+            loadBillingHistory();
+        }
+    }, [activeTab]);
+
     ////////// Lógica de carga de datos bajo demanda según pestaña - 27/05/2025 13:10 //////////
     const handleTabChange = async (tab: 'profile' | 'plan' | 'usage' | 'payments') => {
         setActiveTab(tab);
@@ -110,16 +128,6 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ user, onClose, onUp
             } finally {
                 setLoadingStats(false);
                 setLoadingResources(false);
-            }
-        } else if (tab === 'payments' && payments.length === 0) {
-            setLoadingPayments(true);
-            try {
-                const history = await api.getUserPayments(user.id);
-                setPayments(history);
-            } catch (e) {
-                console.error("Error cargando pagos", e);
-            } finally {
-                setLoadingPayments(false);
             }
         }
     };
@@ -339,7 +347,7 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ user, onClose, onUp
                                                         </div>
                                                         <div>
                                                             <p className="text-[9px] font-black text-gray-500 uppercase tracking-widest">Periodicidad ({planDays} días)</p>
-                                                            <p className="text-lg font-bold text-white">{periodicity} ({priceDisplay})</p>
+                                                            <p className="text-lg font-bold text-white">{periodicity}</p>
                                                         </div>
                                                     </div>
                                                 )}
@@ -559,87 +567,146 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ user, onClose, onUp
                         {/* TAB: PAYMENTS */}
                         {activeTab === 'payments' && (
                             <div className="space-y-6 animate-in fade-in duration-500">
-                                <h4 className="text-sm font-black text-gray-500 uppercase tracking-widest flex items-center gap-2 mb-4">
-                                    <RefreshCw className="w-4 h-4 text-emerald-400" /> Historial de Transacciones
-                                </h4>
+                                <div className="flex items-center justify-between mb-4">
+                                    <h4 className="text-sm font-black text-gray-500 uppercase tracking-widest flex items-center gap-2">
+                                        <RefreshCw className="w-4 h-4 text-emerald-400" /> Historial de Transacciones
+                                    </h4>
+                                    <button
+                                        type="button"
+                                        onClick={loadBillingHistory}
+                                        disabled={loadingPayments}
+                                        className="p-2 hover:bg-white/5 text-gray-500 hover:text-white rounded-lg transition-colors cursor-pointer"
+                                        title="Actualizar historial"
+                                    >
+                                        <RefreshCw className={`w-4 h-4 ${loadingPayments ? 'animate-spin text-[#FF5A1F]' : ''}`} />
+                                    </button>
+                                </div>
                                 
                                 {loadingPayments ? (
                                     <div className="flex justify-center py-20 text-[#FF5A1F]"><Loader2 className="w-12 h-12 animate-spin" /></div>
                                 ) : payments.length > 0 ? (
                                     <div className="space-y-4">
-                                        <p className="text-xs text-gray-400 mb-2">Haz clic en una transacción para expandir y ver todos sus detalles.</p>
-                                        {payments.map((payment) => {
-                                            const isExpanded = expandedPaymentId === payment.id;
-                                            const isSuccess = payment.status === 'succeeded' || payment.status === 'approved' || payment.status === 'active' || payment.status === 'completed';
+                                        <p className="text-xs text-gray-400 mb-2">Haz clic en un registro para expandir y ver los detalles de tu suscripción.</p>
+                                        {payments.map((item) => {
+                                            const isExpanded = expandedPaymentId === item.id;
+                                            const rawStatus = String(item.status || '').toLowerCase();
+                                            const isActive = rawStatus === 'active' || rawStatus === 'approved' || rawStatus === 'succeeded' || rawStatus === 'completed';
+                                            const isReplaced = rawStatus === 'replaced';
+                                            const isCanceled = rawStatus === 'canceled' || rawStatus === 'expired' || rawStatus === 'inactive';
+
+                                            const statusLabel = rawStatus === 'active'
+                                                ? 'Activa'
+                                                : (rawStatus === 'approved' || rawStatus === 'succeeded' || rawStatus === 'completed')
+                                                    ? 'Aprobada'
+                                                    : isReplaced
+                                                        ? 'Reemplazada'
+                                                        : rawStatus === 'pending_cancellation'
+                                                            ? 'Activa (Cancela al vencer)'
+                                                            : isCanceled
+                                                                ? 'Finalizada'
+                                                                : 'Fallida';
+
+                                            const statusBadgeClass = isActive
+                                                ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                                                : isReplaced
+                                                    ? 'bg-gray-500/10 text-gray-400 border-white/10'
+                                                    : isCanceled
+                                                        ? 'bg-amber-500/10 text-amber-400 border-amber-500/20'
+                                                        : 'bg-red-500/10 text-red-400 border-red-500/20';
+
+                                            const startFmt = item.startDate || item.createdAt
+                                                ? new Date(item.startDate || item.createdAt).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })
+                                                : '—';
+                                            const renewalFmt = item.renewalDate
+                                                ? new Date(item.renewalDate).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })
+                                                : null;
+                                            const isAnnual = String(item.periodicity || '').toLowerCase() === 'anual';
+
                                             return (
                                                 <div 
-                                                    key={payment.id} 
-                                                    onClick={() => setExpandedPaymentId(isExpanded ? null : payment.id)}
-                                                    className="bg-white/5 border border-white/5 p-6 rounded-2xl flex flex-col gap-4 group hover:border-[#FF5A1F]/30 transition-all cursor-pointer select-none"
+                                                    key={item.id} 
+                                                    onClick={() => setExpandedPaymentId(isExpanded ? null : item.id)}
+                                                    className="bg-white/5 border border-white/5 p-5 sm:p-6 rounded-2xl flex flex-col gap-4 group hover:border-[#FF5A1F]/30 transition-all cursor-pointer select-none"
                                                 >
-                                                    <div className="flex items-center justify-between">
-                                                        <div className="flex items-center gap-5">
-                                                            <div className="p-3 bg-black/40 rounded-xl text-gray-400 group-hover:text-[#FF5A1F] transition-colors border border-white/5">
-                                                                <CreditCard className="w-6 h-6" />
+                                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                                        <div className="flex items-start sm:items-center gap-4">
+                                                            <div className={`p-3 bg-black/40 rounded-xl border border-white/5 shrink-0 ${isAnnual ? 'text-amber-400' : 'text-gray-400 group-hover:text-[#FF5A1F]'} transition-colors`}>
+                                                                {isAnnual ? <Crown className="w-5 h-5" /> : <CreditCard className="w-5 h-5" />}
                                                             </div>
-                                                            <div>
-                                                                <div className="flex items-center gap-3 mb-1">
-                                                                    <span className={`text-sm font-black uppercase tracking-widest ${isSuccess ? 'text-emerald-400' : 'text-red-400'}`}>
-                                                                        {isSuccess ? 'Éxito' : 'Fallido'}
+                                                            <div className="space-y-1">
+                                                                <div className="flex flex-wrap items-center gap-2">
+                                                                    <span className="text-sm font-black text-white">
+                                                                        {item.planName || formatPlanName(item.planSlug)}
                                                                     </span>
-                                                                    <span className="text-[10px] text-gray-600 font-black uppercase">• {new Date(payment.created_at || payment.createdAt).toLocaleDateString()}</span>
+                                                                    <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full border ${statusBadgeClass}`}>
+                                                                        {statusLabel}
+                                                                    </span>
                                                                 </div>
-                                                                <p className="text-xs text-gray-500 font-mono tracking-tighter opacity-50">
-                                                                    ID: {payment.stripe_id || payment.transaction_id || payment.id}
-                                                                </p>
+                                                                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-gray-400">
+                                                                    <span className="flex items-center gap-1">
+                                                                        <Calendar className="w-3 h-3 text-blue-400" />
+                                                                        Registro: <strong className="text-gray-200">{startFmt}</strong>
+                                                                    </span>
+                                                                    {renewalFmt && (
+                                                                        <span className="flex items-center gap-1">
+                                                                            <Clock className="w-3 h-3 text-emerald-400" />
+                                                                            Renovación: <strong className="text-emerald-400">{renewalFmt}</strong>
+                                                                        </span>
+                                                                    )}
+                                                                </div>
                                                             </div>
                                                         </div>
-                                                        <div className="text-right">
-                                                            <p className="text-xl font-black text-white leading-none">${payment.amount} <span className="text-xs text-gray-500 font-bold">{payment.currency?.toUpperCase()}</span></p>
-                                                            <p className="text-[9px] text-gray-600 font-black uppercase mt-1.5 tracking-tighter">{payment.payment_method}</p>
+
+                                                        <div className="text-left sm:text-right shrink-0 flex sm:flex-col items-center sm:items-end justify-between gap-1.5">
+                                                            {item.periodicity && (
+                                                                <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border ${isAnnual ? 'bg-amber-500/15 text-amber-300 border-amber-500/30' : 'bg-orange-500/15 text-orange-300 border-orange-500/30'}`}>
+                                                                    {item.periodicity}
+                                                                </span>
+                                                            )}
+                                                            <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">
+                                                                {item.paymentMethod || (item.source === 'manual' ? 'Asignación administrativa' : 'Hotmart')}
+                                                            </p>
                                                         </div>
                                                     </div>
 
                                                     {isExpanded && (
-                                                        <div className="border-t border-white/5 pt-4 mt-2 grid grid-cols-2 gap-4 text-xs animate-in slide-in-from-top-2 duration-300">
+                                                        <div className="border-t border-white/5 pt-4 mt-1 grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs animate-in slide-in-from-top-2 duration-300">
                                                             <div className="space-y-1">
-                                                                <p className="text-gray-500 uppercase font-bold text-[9px] tracking-widest">Identificador de Pago</p>
-                                                                <p className="text-gray-300 font-mono text-[11px] select-all break-all">{payment.stripe_id || payment.transaction_id || 'N/A'}</p>
+                                                                <p className="text-gray-500 uppercase font-bold text-[9px] tracking-widest">Referencia</p>
+                                                                <p className="text-gray-300 font-mono text-[11px] select-all break-all">{item.referenceId || 'N/A'}</p>
                                                             </div>
                                                             <div className="space-y-1">
-                                                                <p className="text-gray-500 uppercase font-bold text-[9px] tracking-widest">Método de Pago</p>
-                                                                <p className="text-gray-300">{payment.payment_method || 'Stripe / Hotmart'}</p>
+                                                                <p className="text-gray-500 uppercase font-bold text-[9px] tracking-widest">Modalidad / Duración</p>
+                                                                <p className="text-gray-300 font-medium">
+                                                                    {item.periodicity || 'Suscripción'}{item.planDays ? ` (${item.planDays} días)` : ''}
+                                                                </p>
+                                                            </div>
+                                                            <div className="space-y-1">
+                                                                <p className="text-gray-500 uppercase font-bold text-[9px] tracking-widest">Fecha de Registro / Inicio</p>
+                                                                <p className="text-gray-300">{startFmt}</p>
+                                                            </div>
+                                                            <div className="space-y-1">
+                                                                <p className="text-gray-500 uppercase font-bold text-[9px] tracking-widest">Fecha de Renovación / Vencimiento</p>
+                                                                <p className="text-emerald-400 font-semibold">{renewalFmt || 'Sin vencimiento'}</p>
+                                                            </div>
+                                                            <div className="space-y-1">
+                                                                <p className="text-gray-500 uppercase font-bold text-[9px] tracking-widest">Método / Origen</p>
+                                                                <p className="text-gray-300">{item.paymentMethod || (item.source === 'manual' ? 'Asignación administrativa' : 'Hotmart')}</p>
                                                             </div>
                                                             <div className="space-y-1">
                                                                 <p className="text-gray-500 uppercase font-bold text-[9px] tracking-widest">Estado</p>
-                                                                <p className="text-gray-300 capitalize">{payment.status}</p>
+                                                                <p className="text-gray-300">{statusLabel}</p>
                                                             </div>
-                                                            <div className="space-y-1">
-                                                                <p className="text-gray-500 uppercase font-bold text-[9px] tracking-widest">Fecha Completa</p>
-                                                                <p className="text-gray-300">{new Date(payment.created_at || payment.createdAt).toLocaleString()}</p>
-                                                            </div>
-                                                            {payment.buyer_name && (
-                                                                <div className="space-y-1">
-                                                                    <p className="text-gray-500 uppercase font-bold text-[9px] tracking-widest">Nombre de Comprador</p>
-                                                                    <p className="text-gray-300 font-medium">{payment.buyer_name}</p>
-                                                                </div>
-                                                            )}
-                                                            {payment.approval_code && (
+                                                            {item.approvalCode && (
                                                                 <div className="space-y-1">
                                                                     <p className="text-gray-500 uppercase font-bold text-[9px] tracking-widest">Código de Aprobación</p>
-                                                                    <p className="text-gray-300 font-mono">{payment.approval_code}</p>
+                                                                    <p className="text-gray-300 font-mono">{item.approvalCode}</p>
                                                                 </div>
                                                             )}
-                                                            {payment.affiliate_code && (
-                                                                <div className="space-y-1">
-                                                                    <p className="text-gray-500 uppercase font-bold text-[9px] tracking-widest">Código de Afiliado</p>
-                                                                    <p className="text-gray-300 font-mono">{payment.affiliate_code}</p>
-                                                                </div>
-                                                            )}
-                                                            {payment.receipt_url && (
-                                                                <div className="col-span-2 pt-2 border-t border-white/5">
+                                                            {item.receiptUrl && (
+                                                                <div className="sm:col-span-2 pt-2 border-t border-white/5">
                                                                     <a 
-                                                                        href={payment.receipt_url} 
+                                                                        href={item.receiptUrl} 
                                                                         target="_blank" 
                                                                         rel="noreferrer" 
                                                                         className="inline-flex items-center gap-1.5 text-xs text-[#FF5A1F] hover:text-white transition-colors"
