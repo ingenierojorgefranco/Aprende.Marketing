@@ -21,6 +21,7 @@ import { PrivacyPage } from "./components/PrivacyPage";
 import { JorgeFrancoPage } from "./components/cv/jorge-franco/JorgeFrancoPage";
 import { AprendeMarketingProjectPage } from "./components/cv/jorge-franco/AprendeMarketingProjectPage";
 import { AprendeMarketingBienvenida } from "./components/AprendeMarketingBienvenida";
+import { HostingOfferPage } from "./components/HostingOfferPage";
 import { SmartRedirect } from "./components/SmartRedirect";
 import { TrackingManager } from "./components/TrackingManager";
 ////////// Fin de importación - 14/06/2025 01:15 //////////
@@ -383,6 +384,7 @@ const App: React.FC = () => {
         <Route path="/aprendemarketing/bienvenida" element={<AprendeMarketingBienvenida />} />
         <Route path="/bienvenida" element={<Navigate to="/aprendemarketing/bienvenida" replace />} />
         <Route path="/aprendemarketing" element={<Navigate to="/aprendemarketing/bienvenida" replace />} />
+        <Route path="/hosting" element={<HostingOfferPage user={user} />} />
 
         {/* REDIRECCIONES EXTERNAS DIRECTAS */}
         <Route path="/sesion" element={<ExternalRedirect to={SESION_WHATSAPP_URL} />} />

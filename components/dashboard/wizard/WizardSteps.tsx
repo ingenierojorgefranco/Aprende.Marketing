@@ -1166,7 +1166,7 @@ export const StrategyReadyStep: React.FC<StepProps & { project?: any }> = ({ onN
             {/* 2-Column Main Layout: Video Left, Content Right */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 xl:gap-14 items-center text-left pt-2 w-full">
                 {/* LEFT COLUMN: Interactive Browser Video Preview */}
-                <div className="lg:col-span-7 relative w-full pt-2 lg:pt-0 flex flex-col justify-center">
+                <div className="lg:col-span-6 relative w-full pt-2 lg:pt-0 flex flex-col justify-center">
                     {/* Glowing Backdrop */}
                     <div className="absolute inset-0 bg-gradient-to-tr from-[#FF5A1F]/20 via-orange-600/10 to-transparent blur-3xl -z-10 rounded-3xl"></div>
                     
@@ -1223,7 +1223,7 @@ export const StrategyReadyStep: React.FC<StepProps & { project?: any }> = ({ onN
                 </div>
 
                 {/* RIGHT COLUMN: Info & CTA */}
-                <div className="lg:col-span-5 flex flex-col justify-center space-y-6 sm:space-y-7">
+                <div className="lg:col-span-6 flex flex-col justify-center space-y-6 sm:space-y-7">
                     {/* Assistant Badge */}
                     <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#181210] border border-[#FF5A1F]/30 text-[#FF5A1F] text-xs font-extrabold tracking-wider uppercase self-start shadow-sm">
                         <Sparkles className="w-4 h-4 text-[#FF5A1F] animate-pulse" />
@@ -1384,7 +1384,7 @@ export const LandingSuccessStep: React.FC<LandingSuccessProps> = ({ onNext, proj
             {/* 2-Column Main Layout: Video Left, Content Right */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 xl:gap-14 items-center text-left pt-2 w-full">
                 {/* LEFT COLUMN: Interactive Reels & Video Content Preview Mockup */}
-                <div className="lg:col-span-7 relative w-full pt-2 lg:pt-0 flex flex-col justify-center">
+                <div className="lg:col-span-6 relative w-full pt-2 lg:pt-0 flex flex-col justify-center">
                     {/* Glowing Backdrop */}
                     <div className="absolute inset-0 bg-gradient-to-tr from-[#FF5A1F]/20 via-orange-600/10 to-transparent blur-3xl -z-10 rounded-3xl"></div>
                     
@@ -1445,7 +1445,7 @@ export const LandingSuccessStep: React.FC<LandingSuccessProps> = ({ onNext, proj
                 </div>
 
                 {/* RIGHT COLUMN: Info & CTA */}
-                <div className="lg:col-span-5 flex flex-col justify-center space-y-6 sm:space-y-7">
+                <div className="lg:col-span-6 flex flex-col justify-center space-y-6 sm:space-y-7">
                     {/* Assistant Badge */}
                     <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#181210] border border-[#FF5A1F]/30 text-[#FF5A1F] text-xs font-extrabold tracking-wider uppercase self-start shadow-sm">
                         <Sparkles className="w-4 h-4 text-[#FF5A1F] animate-pulse" />
