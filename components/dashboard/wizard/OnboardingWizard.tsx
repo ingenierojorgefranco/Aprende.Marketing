@@ -283,10 +283,10 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
   useEffect(() => {
     const fullPath = location.pathname + location.hash + location.search;
 
-    const validStep1Substeps: WizardStep[] = ["welcome", "whatsapp_capture"];
+    const validStep1Substeps: WizardStep[] = ["welcome"];
     const validStep2Substeps: WizardStep[] = ["selection", "generating_strategy"];
     const validStep3Substeps: WizardStep[] = ["strategy_ready", "creating_web", "landing_success", "show_avatars", "show_landing_prep", "unlock"];
-    const validStep4Substeps: WizardStep[] = ["generating_hooks", "show_hooks", "success"];
+    const validStep4Substeps: WizardStep[] = ["generating_hooks", "show_hooks", "success", "whatsapp_capture"];
 
     const prefix = location.pathname.startsWith('/onboarding') ? '/onboarding' : '/wizard';
 
@@ -1572,7 +1572,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
     );
   }
 
-  const handleFinishWizard = () => {
+  const completeWizardNavigation = () => {
     localStorage.removeItem("force_wizard_step");
     localStorage.setItem("wizard_completed", "true");
     if (typeof window !== "undefined") {
@@ -1599,6 +1599,20 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
     } else {
       navigate("/dashboard/projects");
     }
+  };
+
+  const handleFinishWizard = () => {
+    const hasPhone = !!(user.phone && user.phone.trim() !== "");
+    const dismissedThisSession =
+      typeof window !== "undefined" &&
+      sessionStorage.getItem(`whatsapp_prompt_dismissed_${user.id}`) === "true";
+
+    if (!hasPhone && user.role !== "admin" && !dismissedThisSession) {
+      setStep("whatsapp_capture");
+      return;
+    }
+
+    completeWizardNavigation();
   };
 
   return (
@@ -2286,15 +2300,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
             <WelcomeStep
               userData={user}
               onNext={() => {
-                const hasPhone = !!(user.phone && user.phone.trim() !== "");
-                const dismissedThisSession =
-                  typeof window !== "undefined" &&
-                  sessionStorage.getItem(`whatsapp_prompt_dismissed_${user.id}`) === "true";
-                if (!hasPhone && user.role !== "admin" && !dismissedThisSession) {
-                  setStep("whatsapp_capture");
-                } else {
-                  goToStep(2);
-                }
+                goToStep(2);
               }}
               onGoToStep={(s) => goToStep(s)}
               disabled={!!strategyData}
@@ -2306,17 +2312,18 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
           >
             <WhatsAppOnboardingStep
               userName={user.name}
+              ctaLabel="CONTINUAR A MI PROYECTO DIGITAL"
               onSaved={(savedPhone) => {
                 if (onUpdateUser) {
                   onUpdateUser({ ...user, phone: savedPhone });
                 }
-                goToStep(2);
+                completeWizardNavigation();
               }}
               onSkip={() => {
                 if (typeof window !== "undefined") {
                   sessionStorage.setItem(`whatsapp_prompt_dismissed_${user.id}`, "true");
                 }
-                goToStep(2);
+                completeWizardNavigation();
               }}
             />
           </div>

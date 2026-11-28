@@ -211,8 +211,8 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
     ''
   ).trim();
 
-  // Brand Name & Visuals
-  const brandName = tyConfig.headerLogoText || content.brandName || project?.name || "ResinPro Studio Latino";
+  // Brand Name & Visuals (siempre desde BD / proyecto)
+  const brandName = (tyConfig.headerLogoText || content.brandName || rawProjectTopic || project?.name || "Academia Digital").trim();
 
   // WhatsApp Link Resolution (Configurado en Hotlinks / Project Wizard - Imagen 4)
   const isValidWhatsappUrl = (url: string | null | undefined): boolean => {
@@ -289,7 +289,7 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
   const [videoCurrentTime, setVideoCurrentTime] = useState<string>("0:00");
 
   const videoUrl = tyConfig.videoUrl || (project?.multimedia_json as any)?.videoUrls?.[0] || "";
-  const videoDuration = tyConfig.videoDuration || "34:28";
+  const videoDuration = tyConfig.videoDuration || "";
 
   // YouTube / Vimeo embed parser & thumbnail extractor
   const getEmbedVideoUrl = (url: string): string | null => {
@@ -314,12 +314,10 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
   const embedUrl = getEmbedVideoUrl(videoUrl);
   const autoYtThumbnail = getYouTubeThumbnail(videoUrl);
 
-  const defaultPoster = "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=1600&q=80";
-  
-  // Captura de carga del video definida en el proyecto (Imagen 4) con fallback automático al thumbnail del video o imagen de portada
+  // Captura de carga del video definida en el proyecto (BD) con respaldo automático al thumbnail del video o portada del proyecto
   const videoPoster = (tyConfig.videoPosterUrl && tyConfig.videoPosterUrl.trim() !== '')
-    ? tyConfig.videoPosterUrl
-    : (autoYtThumbnail || project?.multimedia_json?.heroImages?.[0] || defaultPoster);
+    ? tyConfig.videoPosterUrl.trim()
+    : (autoYtThumbnail || project?.multimedia_json?.heroImages?.[0] || "");
 
   // 2. Instructor desde la base de datos (strategy_json.teacher)
   const teacherFromStrategy = (project?.strategy_json as any)?.teacher || (project?.strategy_json as any)?.instructor || {};
@@ -329,7 +327,7 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
     tyConfig.upsellInstructorName 
     || teacherFromStrategy.name 
     || instructorFromContent.name 
-    || "Ariana Zamora";
+    || "";
 
   const instructorTitle = 
     tyConfig.upsellInstructorTitle 
@@ -337,7 +335,7 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
     || teacherFromStrategy.bio 
     || instructorFromContent.title 
     || instructorFromContent.role 
-    || "Especialista en recubrimientos epóxicos";
+    || "";
 
   const instructorImage = 
     teacherFromStrategy.image 
@@ -346,12 +344,11 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
     || (project?.multimedia_json as any)?.instructorImage 
     || "";
 
-  // 3. Imágenes que aparecen al lado izquierdo de los textos (Lead Magnet y Programa Completo - Imagen 3 y 4)
-  // Deben cargar las imágenes del poster definido en el proyecto (Imagen 4) o la imagen personalizada si existe
+  // 3. Imágenes desde la base de datos del proyecto
   const upsellCustomImage = 
     (tyConfig.upsellImageUrl && tyConfig.upsellImageUrl.trim() !== '')
       ? tyConfig.upsellImageUrl
-      : (videoPoster && videoPoster !== defaultPoster)
+      : videoPoster
         ? videoPoster
         : (project?.multimedia_json?.heroImages?.[0] || undefined);
 
@@ -360,9 +357,7 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
       ? tyConfig.whatsappGuideImageUrl
       : (project?.multimedia_json?.leadMagnets?.[0]?.imageUrl && project.multimedia_json.leadMagnets[0].imageUrl.trim() !== '')
         ? project.multimedia_json.leadMagnets[0].imageUrl
-        : (videoPoster && videoPoster !== defaultPoster)
-          ? videoPoster
-          : undefined;
+        : videoPoster || undefined;
 
   const handlePlayClick = () => {
     setIsPlaying(!isPlaying);
@@ -525,31 +520,70 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
               </span>
             </div>
 
-            {/* Título y Subtítulo de la Masterclass */}
-            <div className="text-center max-w-3xl mx-auto mb-6">
-              <h2 
-                className="text-2xl sm:text-3xl md:text-[1.95rem] font-black tracking-tight text-gray-950 leading-snug mb-2"
-                style={{
-                  fontSize: '2.4em',
-                  lineHeight: '1.3em',
-                  paddingBottom: '0.3em'
-                }}
-              >
-                {tyConfig.videoTitle || "¿Cómo empezar profesionalmente con el Microblading de Cejas?"}
-              </h2>
-              <p 
-                className="text-xs sm:text-sm md:text-base text-gray-600 leading-relaxed max-w-lg mx-auto"
-                style={{
-                  fontSize: '1.4em',
-                  lineHeight: '1.3em',
-                  textAlign: 'center',
-                  maxWidth: '42rem',
-                  paddingTop: '0.3em'
-                }}
-              >
-                {tyConfig.videoSubtitle || "Aprende cómo funciona la técnica del Microblading de Cejas, qué necesitas para comenzar y cuáles son los errores que debes evitar."}
-              </p>
-            </div>
+            {/* Título y Subtítulo de la Masterclass (cargados desde BD o generados dinámicamente con el tema del proyecto) */}
+            {(() => {
+              const topicForClass = rawProjectTopic || (
+                project?.productName ||
+                (project as any)?.product_name ||
+                project?.niche ||
+                (project as any)?.project_niche ||
+                (project as any)?.master_niche ||
+                (project?.strategy_json as any)?.meta?.niche ||
+                (content as any)?.niche ||
+                ''
+              ).trim();
+
+              const rawVideoTitle = (tyConfig.videoTitle || '').trim();
+              const isHardcodedMicrobladingTitle =
+                !rawVideoTitle ||
+                (rawVideoTitle === "¿Cómo empezar profesionalmente con el Microblading de Cejas?" &&
+                  !topicForClass.toLowerCase().includes('microblading'));
+
+              const resolvedVideoTitle = !isHardcodedMicrobladingTitle
+                ? rawVideoTitle
+                : topicForClass
+                  ? `¿Cómo empezar profesionalmente con ${topicForClass}?`
+                  : "¿Cómo empezar profesionalmente?";
+
+              const rawVideoSubtitle = (tyConfig.videoSubtitle || '').trim();
+              const isHardcodedMicrobladingSubtitle =
+                !rawVideoSubtitle ||
+                (rawVideoSubtitle === "Aprende cómo funciona la técnica del Microblading de Cejas, qué necesitas para comenzar y cuáles son los errores que debes evitar." &&
+                  !topicForClass.toLowerCase().includes('microblading'));
+
+              const resolvedVideoSubtitle = !isHardcodedMicrobladingSubtitle
+                ? rawVideoSubtitle
+                : topicForClass
+                  ? `Aprende cómo funciona ${topicForClass}, qué necesitas para comenzar y cuáles son los errores que debes evitar.`
+                  : "Aprende cómo funciona este método paso a paso, qué necesitas para comenzar y cuáles son los errores que debes evitar.";
+
+              return (
+                <div className="text-center max-w-3xl mx-auto mb-6">
+                  <h2 
+                    className="text-2xl sm:text-3xl md:text-[1.95rem] font-black tracking-tight text-gray-950 leading-snug mb-2"
+                    style={{
+                      fontSize: '2.4em',
+                      lineHeight: '1.3em',
+                      paddingBottom: '0.3em'
+                    }}
+                  >
+                    {resolvedVideoTitle}
+                  </h2>
+                  <p 
+                    className="text-xs sm:text-sm md:text-base text-gray-600 leading-relaxed max-w-lg mx-auto"
+                    style={{
+                      fontSize: '1.4em',
+                      lineHeight: '1.3em',
+                      textAlign: 'center',
+                      maxWidth: '42rem',
+                      paddingTop: '0.3em'
+                    }}
+                  >
+                    {resolvedVideoSubtitle}
+                  </p>
+                </div>
+              );
+            })()}
 
             {/* Píldora de Recomendación ENCIMA del Video */}
             <div className="text-center mb-5 sm:mb-6">
@@ -583,17 +617,21 @@ export const LiveThankYouPage: React.FC<LiveThankYouPageProps> = ({
                   controls
                   autoPlay
                   playsInline
-                  poster={videoPoster}
+                  poster={videoPoster || undefined}
                   className="w-full h-full object-contain bg-black"
                 />
               ) : (
                 <>
-                  {/* Captura de carga del video publicado sin textos sobre ella (Ref. Imagen 1) */}
-                  <img
-                    src={videoPoster}
-                    alt="Captura del video"
-                    className="w-full h-full object-cover group-hover:scale-[1.01] transition-transform duration-300"
-                  />
+                  {/* Captura de carga del video desde BD (o fondo neutro si el proyecto aún no tiene portada) */}
+                  {videoPoster ? (
+                    <img
+                      src={videoPoster}
+                      alt={brandName}
+                      className="w-full h-full object-cover group-hover:scale-[1.01] transition-transform duration-300"
+                    />
+                  ) : (
+                    <div className={`w-full h-full ${activeDs.hero.bgGradient || 'bg-gradient-to-br from-slate-900 via-zinc-900 to-black'}`} />
+                  )}
 
                   {/* Botón Central de Play */}
                   <button

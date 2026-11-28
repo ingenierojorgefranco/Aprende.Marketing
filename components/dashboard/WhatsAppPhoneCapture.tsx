@@ -50,12 +50,14 @@ const buildNormalizedPhone = (dial: string, localInput: string): { fullPhone: st
 
 interface WhatsAppOnboardingStepProps {
   userName?: string;
+  ctaLabel?: string;
   onSaved: (phone: string) => void;
   onSkip: () => void;
 }
 
 export const WhatsAppOnboardingStep: React.FC<WhatsAppOnboardingStepProps> = ({
   userName,
+  ctaLabel = 'CONTINUAR A MI PROYECTO DIGITAL',
   onSaved,
   onSkip,
 }) => {
@@ -176,7 +178,7 @@ export const WhatsAppOnboardingStep: React.FC<WhatsAppOnboardingStepProps> = ({
               </>
             ) : (
               <>
-                <span>CONTINUAR Y ELEGIR MI PRODUCTO</span>
+                <span>{ctaLabel}</span>
                 <ChevronRight className="w-5 h-5 group-hover:translate-x-1.5 transition-transform" />
               </>
             )}

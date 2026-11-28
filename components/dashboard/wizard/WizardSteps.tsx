@@ -916,7 +916,7 @@ export const GeneratingStep: React.FC<{
     const currentTask = currentStepsList[activeIndex];
 
     const imageUrl = project?.multimedia_json?.heroImages?.[0] || 'https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?q=80&w=2670&auto=format&fit=cover';
-    const productName = project?.productName || project?.name || 'Curso Profesional Certificado de Microblading de Cejas';
+    const productName = project?.productName || project?.name || 'Tu Proyecto Digital';
 
     return (
         <div className="flex flex-col items-center justify-center px-4 space-y-6 text-center max-w-lg mx-auto py-4 font-sans">
@@ -1130,7 +1130,7 @@ export const AvatarRevealStep: React.FC<StepProps & { avatars: any[] }> = ({ ava
 // 4.5 ESTRATEGIA LISTA
 export const StrategyReadyStep: React.FC<StepProps & { project?: any }> = ({ onNext, project }) => {
     const imageUrl = project?.multimedia_json?.heroImages?.[0] || 'https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?q=80&w=2670&auto=format&fit=cover';
-    const productName = project?.productName || project?.name || 'Curso Profesional Certificado de Microblading de Cejas';
+    const productName = project?.productName || project?.name || 'Tu Proyecto Digital';
 
     return (
         <motion.div 
@@ -1163,9 +1163,66 @@ export const StrategyReadyStep: React.FC<StepProps & { project?: any }> = ({ onN
                 </div>
             </div>
 
-            {/* 2-Column Main Layout (Wider, larger spacing) */}
+            {/* 2-Column Main Layout: Video Left, Content Right */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 xl:gap-14 items-center text-left pt-2 w-full">
-                {/* LEFT COLUMN: Info & CTA */}
+                {/* LEFT COLUMN: Interactive Browser Video Preview */}
+                <div className="lg:col-span-7 relative w-full pt-2 lg:pt-0 flex flex-col justify-center">
+                    {/* Glowing Backdrop */}
+                    <div className="absolute inset-0 bg-gradient-to-tr from-[#FF5A1F]/20 via-orange-600/10 to-transparent blur-3xl -z-10 rounded-3xl"></div>
+                    
+                    {/* Texto llamada a la acción del video */}
+                    <div className="relative z-10 mb-4 flex items-center justify-center w-full">
+                        <p className="text-yellow-400 font-extrabold text-[13px] sm:text-[14px] flex items-center gap-2 drop-shadow-[0_2px_15px_rgba(234,179,8,0.4)] animate-pulse bg-black/50 px-5 py-2.5 rounded-full border border-yellow-500/30 backdrop-blur-md text-center max-w-md md:max-w-none">
+                            <MousePointer2 className="w-4 h-4 shrink-0" />
+                            Haz clic en el video para conocer más detalles sobre tu página de captura
+                        </p>
+                    </div>
+
+                    <div className="relative w-full">
+                        {/* Floating Wand Badge top-right */}
+                        <div className="absolute -top-3 -right-3 sm:-top-4 sm:-right-4 w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-[#FF5A1F] to-orange-600 flex items-center justify-center text-white shadow-[0_0_35px_rgba(255,90,31,0.65)] z-20 border border-orange-300/40">
+                            <Wand2 className="w-6 h-6 sm:w-7 sm:h-7" />
+                        </div>
+
+                        {/* Browser Container */}
+                        <div className="bg-[#0a0a0e] border border-[#FF5A1F]/35 rounded-2xl sm:rounded-3xl overflow-hidden shadow-[0_25px_60px_rgba(0,0,0,0.85)] relative">
+                        {/* Browser Top Navigation Bar */}
+                        <div className="bg-[#121218] border-b border-zinc-800/80 px-5 py-3.5 flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                                <div className="w-3.5 h-3.5 rounded-full bg-rose-500/80"></div>
+                                <div className="w-3.5 h-3.5 rounded-full bg-amber-500/80"></div>
+                                <div className="w-3.5 h-3.5 rounded-full bg-emerald-500/80"></div>
+                            </div>
+                            
+                            <div className="bg-[#1a1a24] border border-zinc-700/50 rounded-full px-5 py-1.5 text-xs text-zinc-200 flex items-center gap-2 font-mono">
+                                <Sparkles className="w-4 h-4 text-[#FF5A1F] animate-pulse" />
+                                <span>Generando tu página de captura...</span>
+                            </div>
+
+                            <div className="w-12"></div>
+                        </div>
+
+                        {/* Browser Landing Page Content Preview */}
+                        <div className="relative p-4 bg-gradient-to-b from-[#101016] via-[#0d0d12] to-[#08080a] space-y-8 text-left overflow-hidden min-h-[440px] sm:min-h-[480px] flex flex-col justify-between">
+                            {/* Landing Video Preview */}
+                            <div className="relative z-10 w-full h-full flex flex-col items-center justify-center">
+                                <div className="w-full max-w-3xl aspect-video rounded-xl overflow-hidden shadow-2xl border border-white/10 bg-black/50">
+                                    <iframe 
+                                        className="w-full h-full"
+                                        src="https://www.youtube.com/embed/eer7wU3ePYQ?rel=0" 
+                                        title="Generador de página de captura" 
+                                        frameBorder="0" 
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                                        allowFullScreen
+                                    ></iframe>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+
+                {/* RIGHT COLUMN: Info & CTA */}
                 <div className="lg:col-span-5 flex flex-col justify-center space-y-6 sm:space-y-7">
                     {/* Assistant Badge */}
                     <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#181210] border border-[#FF5A1F]/30 text-[#FF5A1F] text-xs font-extrabold tracking-wider uppercase self-start shadow-sm">
@@ -1220,63 +1277,6 @@ export const StrategyReadyStep: React.FC<StepProps & { project?: any }> = ({ onN
                             <ShieldCheck className="w-4 h-4 text-[#FF5A1F] shrink-0" />
                             <span>Nuestra inteligencia artificial creará tu página web de captura con base en la estrategia de tu proyecto.</span>
                         </div>
-                    </div>
-                </div>
-
-                {/* RIGHT COLUMN: Interactive Browser Preview Mockup (Expanded & Taller) */}
-                <div className="lg:col-span-7 relative w-full pt-2 lg:pt-0 flex flex-col justify-center">
-                    {/* Glowing Backdrop */}
-                    <div className="absolute inset-0 bg-gradient-to-tr from-[#FF5A1F]/20 via-orange-600/10 to-transparent blur-3xl -z-10 rounded-3xl"></div>
-                    
-                    {/* Texto llamada a la acción del video */}
-                    <div className="relative z-10 mb-4 flex items-center justify-center w-full">
-                        <p className="text-yellow-400 font-extrabold text-[13px] sm:text-[14px] flex items-center gap-2 drop-shadow-[0_2px_15px_rgba(234,179,8,0.4)] animate-pulse bg-black/50 px-5 py-2.5 rounded-full border border-yellow-500/30 backdrop-blur-md text-center max-w-md md:max-w-none">
-                            <MousePointer2 className="w-4 h-4 shrink-0" />
-                            Haz clic en el video para conocer más detalles sobre tu página de captura
-                        </p>
-                    </div>
-
-                    <div className="relative w-full">
-                        {/* Floating Wand Badge top-right */}
-                        <div className="absolute -top-3 -right-3 sm:-top-4 sm:-right-4 w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-[#FF5A1F] to-orange-600 flex items-center justify-center text-white shadow-[0_0_35px_rgba(255,90,31,0.65)] z-20 border border-orange-300/40">
-                            <Wand2 className="w-6 h-6 sm:w-7 sm:h-7" />
-                        </div>
-
-                        {/* Browser Container */}
-                        <div className="bg-[#0a0a0e] border border-[#FF5A1F]/35 rounded-2xl sm:rounded-3xl overflow-hidden shadow-[0_25px_60px_rgba(0,0,0,0.85)] relative">
-                        {/* Browser Top Navigation Bar */}
-                        <div className="bg-[#121218] border-b border-zinc-800/80 px-5 py-3.5 flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                                <div className="w-3.5 h-3.5 rounded-full bg-rose-500/80"></div>
-                                <div className="w-3.5 h-3.5 rounded-full bg-amber-500/80"></div>
-                                <div className="w-3.5 h-3.5 rounded-full bg-emerald-500/80"></div>
-                            </div>
-                            
-                            <div className="bg-[#1a1a24] border border-zinc-700/50 rounded-full px-5 py-1.5 text-xs text-zinc-200 flex items-center gap-2 font-mono">
-                                <Sparkles className="w-4 h-4 text-[#FF5A1F] animate-pulse" />
-                                <span>Generando tu página de captura...</span>
-                            </div>
-
-                            <div className="w-12"></div>
-                        </div>
-
-                        {/* Browser Landing Page Content Preview */}
-                        <div className="relative p-4 bg-gradient-to-b from-[#101016] via-[#0d0d12] to-[#08080a] space-y-8 text-left overflow-hidden min-h-[440px] sm:min-h-[480px] flex flex-col justify-between">
-                            {/* Landing Video Preview */}
-                            <div className="relative z-10 w-full h-full flex flex-col items-center justify-center">
-                                <div className="w-full max-w-3xl aspect-video rounded-xl overflow-hidden shadow-2xl border border-white/10 bg-black/50">
-                                    <iframe 
-                                        className="w-full h-full"
-                                        src="https://www.youtube.com/embed/eer7wU3ePYQ?rel=0" 
-                                        title="Generador de página de captura" 
-                                        frameBorder="0" 
-                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                                        allowFullScreen
-                                    ></iframe>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                     </div>
                 </div>
             </div>
@@ -1345,8 +1345,8 @@ interface LandingSuccessProps extends StepProps {
 }
 
 export const LandingSuccessStep: React.FC<LandingSuccessProps> = ({ onNext, project, createdPageSubdomain, onView }) => {
-    const productName = project?.productName || project?.name || 'Curso Profesional de Microblading de Cejas';
-    const imageUrl = project?.imageUrl || 'https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=800&q=80';
+    const productName = project?.productName || project?.name || 'Tu Proyecto Digital';
+    const imageUrl = project?.imageUrl || project?.multimedia_json?.heroImages?.[0] || 'https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=800&q=80';
 
     return (
         <motion.div 
@@ -1381,61 +1381,9 @@ export const LandingSuccessStep: React.FC<LandingSuccessProps> = ({ onNext, proj
                 </div>
             </div>
 
-            {/* 2-Column Main Layout */}
+            {/* 2-Column Main Layout: Video Left, Content Right */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 xl:gap-14 items-center text-left pt-2 w-full">
-                {/* LEFT COLUMN: Info & CTA */}
-                <div className="lg:col-span-5 flex flex-col justify-center space-y-6 sm:space-y-7">
-                    {/* Assistant Badge */}
-                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#181210] border border-[#FF5A1F]/30 text-[#FF5A1F] text-xs font-extrabold tracking-wider uppercase self-start shadow-sm">
-                        <Sparkles className="w-4 h-4 text-[#FF5A1F] animate-pulse" />
-                        <span>ASISTENTE DE INTELIGENCIA ARTIFICIAL</span>
-                    </div>
-
-                    {/* Headline */}
-                    <h2 className="text-3xl sm:text-4xl md:text-5xl xl:text-[3.25rem] font-black text-white tracking-tight" style={{ lineHeight: '1.15em' }}>
-                        Tu página de captura ya está lista.
-                        <br />
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF5A1F] via-[#FF7A00] to-[#FFA033]">
-                            Ahora vamos a crear tus Reels de atracción.
-                        </span>
-                    </h2>
-
-                    {/* Description */}
-                    <p className="text-zinc-300 font-normal text-base sm:text-lg text-[1.3em] leading-[1.6em]">
-                        Tu página de captura fue creada correctamente para tu proyecto <strong className="text-white font-semibold">{productName}</strong>. El siguiente paso es preparar 3 videos cortos de atracción (Reels) para atraer visitas hacia tu página.
-                    </p>
-
-                    {/* Product Selected Card */}
-                    <div className="bg-[#0e0e14]/95 border border-zinc-800 hover:border-zinc-700/80 rounded-2xl p-3.5 sm:p-4 flex items-center gap-4 shadow-xl transition-all">
-                        <div className="w-16 sm:w-20 aspect-video rounded-xl overflow-hidden relative shrink-0 bg-zinc-900 border border-zinc-800 flex items-center justify-center">
-                            <img referrerPolicy="no-referrer" alt={productName} className="w-full h-full object-cover" src={imageUrl} />
-                            <div className="absolute inset-0 flex items-center justify-center bg-black/40">
-                                <div className="w-6 h-6 rounded-full bg-[#FF5A1F] flex items-center justify-center shadow-lg">
-                                    <Play className="w-3 h-3 text-white fill-current translate-x-0.5" />
-                                </div>
-                            </div>
-                        </div>
-                        <div className="min-w-0 flex-1">
-                            <span className="text-[10px] sm:text-xs font-bold text-[#FF5A1F] uppercase tracking-wider block">Producto seleccionado</span>
-                            <h4 className="text-white font-bold text-sm sm:text-base leading-snug line-clamp-2 mt-0.5">{productName}</h4>
-                        </div>
-                    </div>
-
-                    {/* CTA Button */}
-                    <div className="pt-2">
-                        <button 
-                            type="button"
-                            onClick={() => onNext()}
-                            className="w-full py-4.5 sm:py-5 px-8 bg-gradient-to-r from-[#FF5A1F] via-[#FF4500] to-[#FF5A1F] hover:opacity-95 text-white rounded-2xl font-black text-base sm:text-lg tracking-wider uppercase transition-all shadow-[0_12px_40px_rgba(255,90,31,0.45)] border border-orange-400/30 flex items-center justify-center gap-3 active:scale-[0.98] cursor-pointer group"
-                        >
-                            <Rocket className="w-5 h-5 sm:w-6 sm:h-6 shrink-0 group-hover:rotate-12 transition-transform" />
-                            <span>CREAR MIS REELS DE ATRACCIÓN</span>
-                            <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6 shrink-0 group-hover:translate-x-1 transition-transform" />
-                        </button>
-                    </div>
-                </div>
-
-                {/* RIGHT COLUMN: Interactive Reels & Video Content Preview Mockup */}
+                {/* LEFT COLUMN: Interactive Reels & Video Content Preview Mockup */}
                 <div className="lg:col-span-7 relative w-full pt-2 lg:pt-0 flex flex-col justify-center">
                     {/* Glowing Backdrop */}
                     <div className="absolute inset-0 bg-gradient-to-tr from-[#FF5A1F]/20 via-orange-600/10 to-transparent blur-3xl -z-10 rounded-3xl"></div>
@@ -1493,6 +1441,58 @@ export const LandingSuccessStep: React.FC<LandingSuccessProps> = ({ onNext, proj
 
                         </div>
                     </div>
+                    </div>
+                </div>
+
+                {/* RIGHT COLUMN: Info & CTA */}
+                <div className="lg:col-span-5 flex flex-col justify-center space-y-6 sm:space-y-7">
+                    {/* Assistant Badge */}
+                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#181210] border border-[#FF5A1F]/30 text-[#FF5A1F] text-xs font-extrabold tracking-wider uppercase self-start shadow-sm">
+                        <Sparkles className="w-4 h-4 text-[#FF5A1F] animate-pulse" />
+                        <span>ASISTENTE DE INTELIGENCIA ARTIFICIAL</span>
+                    </div>
+
+                    {/* Headline */}
+                    <h2 className="text-3xl sm:text-4xl md:text-5xl xl:text-[3.25rem] font-black text-white tracking-tight" style={{ lineHeight: '1.15em' }}>
+                        Tu página de captura ya está lista.
+                        <br />
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF5A1F] via-[#FF7A00] to-[#FFA033]">
+                            Ahora vamos a crear tus Reels de atracción.
+                        </span>
+                    </h2>
+
+                    {/* Description */}
+                    <p className="text-zinc-300 font-normal text-base sm:text-lg text-[1.3em] leading-[1.6em]">
+                        Tu página de captura fue creada correctamente para tu proyecto <strong className="text-white font-semibold">{productName}</strong>. El siguiente paso es preparar 3 videos cortos de atracción (Reels) para atraer visitas hacia tu página.
+                    </p>
+
+                    {/* Product Selected Card */}
+                    <div className="bg-[#0e0e14]/95 border border-zinc-800 hover:border-zinc-700/80 rounded-2xl p-3.5 sm:p-4 flex items-center gap-4 shadow-xl transition-all">
+                        <div className="w-16 sm:w-20 aspect-video rounded-xl overflow-hidden relative shrink-0 bg-zinc-900 border border-zinc-800 flex items-center justify-center">
+                            <img referrerPolicy="no-referrer" alt={productName} className="w-full h-full object-cover" src={imageUrl} />
+                            <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+                                <div className="w-6 h-6 rounded-full bg-[#FF5A1F] flex items-center justify-center shadow-lg">
+                                    <Play className="w-3 h-3 text-white fill-current translate-x-0.5" />
+                                </div>
+                            </div>
+                        </div>
+                        <div className="min-w-0 flex-1">
+                            <span className="text-[10px] sm:text-xs font-bold text-[#FF5A1F] uppercase tracking-wider block">Producto seleccionado</span>
+                            <h4 className="text-white font-bold text-sm sm:text-base leading-snug line-clamp-2 mt-0.5">{productName}</h4>
+                        </div>
+                    </div>
+
+                    {/* CTA Button */}
+                    <div className="pt-2">
+                        <button 
+                            type="button"
+                            onClick={() => onNext()}
+                            className="w-full py-4.5 sm:py-5 px-8 bg-gradient-to-r from-[#FF5A1F] via-[#FF4500] to-[#FF5A1F] hover:opacity-95 text-white rounded-2xl font-black text-base sm:text-lg tracking-wider uppercase transition-all shadow-[0_12px_40px_rgba(255,90,31,0.45)] border border-orange-400/30 flex items-center justify-center gap-3 active:scale-[0.98] cursor-pointer group"
+                        >
+                            <Rocket className="w-5 h-5 sm:w-6 sm:h-6 shrink-0 group-hover:rotate-12 transition-transform" />
+                            <span>CREAR MIS REELS DE ATRACCIÓN</span>
+                            <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6 shrink-0 group-hover:translate-x-1 transition-transform" />
+                        </button>
                     </div>
                 </div>
             </div>
